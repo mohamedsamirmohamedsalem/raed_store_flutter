@@ -4,24 +4,29 @@ import 'package:flutter/material.dart';
 import 'package:raed_store/constants/app_dimensions.dart';
 import 'package:raed_store/tab_bar_view.dart';
 import 'package:raed_store/utils/navigation/navigation.dart';
+import 'package:raed_store/widgets/entryField.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 
 import 'constants/colors.dart';
 import 'constants/routes.dart';
 import 'constants/text_styles.dart';
 import 'main.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey =  GlobalKey<ScaffoldState>();
-  final RoundedLoadingButtonController _btnController =  RoundedLoadingButtonController();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final RoundedLoadingButtonController _btnController =
+      RoundedLoadingButtonController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
- // LogInModel _logInModel;
+
+  // LogInModel _logInModel;
   late SnackBar snackBar;
 
   // bool _isPasswordShown = false;
@@ -62,9 +67,9 @@ class _LoginPageState extends State<LoginPage> {
       children: <Widget>[
         Text("Languages.of(context).kWelcomeBack",
             style: kBigBlackTextStyle.copyWith(fontWeight: FontWeight.w500)),
-       const SizedBox(height: 20),
+        const SizedBox(height: 20),
         _emailPasswordWidget(),
-        const  SizedBox(height: 10),
+        const SizedBox(height: 10),
         _submitButton(),
         // SizedBox(height: 10),
         // Container(
@@ -81,7 +86,7 @@ class _LoginPageState extends State<LoginPage> {
         // facebookAndGoogle(),
         // SizedBox(height: 10),
         _divider("kOr"),
-        const  SizedBox(height: 10),
+        const SizedBox(height: 10),
         _skipButton(),
       ],
     );
@@ -91,46 +96,20 @@ class _LoginPageState extends State<LoginPage> {
     return Center(
       child: OutlinedButton(
         onPressed: () {
-          Navigation(navigationKey: navigatorKey).navigateTo(routeName: RoutesNames.tabBarMainView);
+          Navigation(navigationKey: navigatorKey)
+              .navigateTo(routeName: RoutesNames.tabBarMainView);
         },
         style: OutlinedButton.styleFrom(
           side: const BorderSide(color: kPrimaryColor),
         ),
-        child: const Text("kSkip",
+        child: const Text(
+          "kSkip",
           style: TextStyle(
             color: kPrimaryColor,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _entryField(String title,
-      {bool isPassword = false, required TextEditingController controller}) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          TextField(
-            controller: controller,
-            obscureText: isPassword,
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              fillColor: Color(0xfff3f3f4),
-              filled: true,
-            ),
-          )
-        ],
       ),
     );
   }
@@ -145,16 +124,17 @@ class _LoginPageState extends State<LoginPage> {
       color: kPrimaryColor,
       controller: _btnController,
       onPressed: _doSomething,
-      child: const Text("kLogin",
+      child: const Text(
+        "kLogin",
         style: TextStyle(fontSize: 20, color: Colors.white),
       ),
     );
   }
 
   void _doSomething() async {
-     _btnController.start();
+    _btnController.start();
     await _callAPI();
-     _btnController.reset();
+    _btnController.reset();
   }
 
   Widget _divider(String text) {
@@ -190,15 +170,18 @@ class _LoginPageState extends State<LoginPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        const Text("kNoAccount",
+        const Text(
+          "kNoAccount",
           style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
         ),
-       const SizedBox(
+        const SizedBox(
           width: 10,
         ),
         GestureDetector(
-          //onTap: () => AppNavigator.pushReplacement(context: context, widget: SignUpPage()),
-          child: const Text("kRegister",
+          onTap: () => Navigation(navigationKey: navigatorKey)
+              .navigateTo(routeName: RoutesNames.registerRoute),
+          child: const Text(
+            "kRegister",
             style: TextStyle(
               color: kPrimaryColor,
               fontSize: 20,
@@ -213,8 +196,11 @@ class _LoginPageState extends State<LoginPage> {
   Widget _emailPasswordWidget() {
     return Column(
       children: <Widget>[
-        _entryField("kEmail", controller: emailController),
-        _entryField("kPassword", isPassword: true, controller: passwordController),
+        EntryField(title: "email", controller: emailController),
+        EntryField(
+            title: "kPassword",
+            isPassword: true,
+            controller: passwordController),
       ],
     );
   }
@@ -241,5 +227,4 @@ class _LoginPageState extends State<LoginPage> {
     //       _scaffoldKey);
     // }
   }
-
 }
