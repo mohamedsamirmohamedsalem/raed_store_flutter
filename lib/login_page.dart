@@ -1,9 +1,12 @@
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:raed_store/constants/app_dimensions.dart';
+import 'package:raed_store/network/network_manager.dart';
 import 'package:raed_store/tab_bar_view.dart';
 import 'package:raed_store/utils/navigation/navigation.dart';
+import 'package:raed_store/utils/string_extenstions.dart';
 import 'package:raed_store/widgets/entryField.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 
@@ -65,7 +68,7 @@ class _LoginPageState extends State<LoginPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text("Languages.of(context).kWelcomeBack",
+        Text("welcome".tr(),
             style: kBigBlackTextStyle.copyWith(fontWeight: FontWeight.w500)),
         const SizedBox(height: 20),
         _emailPasswordWidget(),
@@ -123,7 +126,7 @@ class _LoginPageState extends State<LoginPage> {
       animateOnTap: true,
       color: kPrimaryColor,
       controller: _btnController,
-      onPressed: _doSomething,
+      onPressed: _login,
       child: const Text(
         "kLogin",
         style: TextStyle(fontSize: 20, color: Colors.white),
@@ -131,10 +134,36 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _doSomething() async {
+  void _login() async {
     _btnController.start();
-    Navigation(navigationKey: Navigation.navigation_Key).navigateTo(routeName: RoutesNames.homeRoute);
-    await _callAPI();
+    if (emailController.value.text.isValidEmail() &&
+        passwordController.value.text.isValidPasswordLength(6)) {
+      var loginResponse;
+      try {
+        loginResponse = await NetworkManager()
+            .login(emailController.value.text, passwordController.value.text);
+      } catch (e) {
+        showDialog(
+            context: context,
+            builder: (_) => const AlertDialog(
+                  title: Text('Error'),
+                  content: Text('Unable to Login'),
+                ));
+      }
+      if (loginResponse != null) {
+        Navigation(navigationKey: Navigation.navigation_Key)
+            .navigateTo(routeName: RoutesNames.homeRoute);
+        // save login response to SB
+      }
+    } else {
+      showDialog(
+          context: context,
+          builder: (_) => const AlertDialog(
+                title: Text('Error'),
+                content: Text('Unable to Login'),
+              ));
+    }
+
     _btnController.reset();
   }
 

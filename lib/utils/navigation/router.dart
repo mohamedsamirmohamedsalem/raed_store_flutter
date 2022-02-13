@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:raed_store/ReceiveMoneyScreen.dart';
 import 'package:raed_store/constants/routes.dart';
 import 'package:raed_store/homeScreen.dart';
 import 'package:raed_store/login_page.dart';
@@ -29,6 +30,11 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case RoutesNames.homeRoute:
       return MaterialPageRoute(
         builder: (context) => const HomeScreen(),
+      );
+
+    case RoutesNames.receiveMoneyRoute :
+      return MaterialPageRoute(
+        builder: (context) => const ReceiveMoneyScreen(),
       );
     default:
       return MaterialPageRoute(

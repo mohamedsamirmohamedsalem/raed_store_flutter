@@ -9,5 +9,11 @@
   "confirm_password_not_match": "تأكيد كلمة المرور لا تتطابق مع كلمة المرور",
   "value_greater_than_5_char": "يجب أن تكون كلمة المرور أكبر من 5 أحرف",
   "password_validation": "يجب أن تحتوي كلمة المرور على أحرف كبيرة وأرقام وأحرف صغيرة",
-  "enter_valid_email": "أدخل بريدًا إلكترونيًا صالحًا"
+  "enter_valid_email": "أدخل بريدًا إلكترونيًا صالحًا",
+  "maddin": "مدين",
+  "current_balance": "الرصيد الحالى",
+  "agent": "العميل",
+  "cash_collection_receipt": "ايصال تحصيل النقدية",
+  "welcome": "مرحبا",
+  "receive_money": "استلام المال"
 }
