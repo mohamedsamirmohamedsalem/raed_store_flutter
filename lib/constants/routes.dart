@@ -4,4 +4,5 @@ abstract class RoutesNames {
   static const String otpRoute = 'Otp_screen';
   static const String tabBarMainView = 'TabBarMainView';
   static const String registerRoute="register_screen";
+  static const String homeRoute="home_route";
 }

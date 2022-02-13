@@ -1,4 +1,4 @@
-
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:raed_store/network/network_manager.dart';
@@ -56,7 +56,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget _registerHeader() {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 50, horizontal: 10),
-      child: const Text("Raad Store"),
+      child: const Text("Raad_store").tr(),
     );
   }
 
@@ -64,7 +64,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Container(
       alignment: Alignment.center,
       margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-      child: const Text("Register"),
+      child: const Text("register").tr(),
     );
   }
 
@@ -72,7 +72,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
       child: EntryField(
-        title: "email",
+        title: "email".tr(),
         errorMessage: _emailErrorMessage,
         isValid: _isValidEmail,
         controller: _emailController,
@@ -84,7 +84,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
       child: EntryField(
-        title: "password",
+        title: "password".tr(),
         errorMessage: _passwordErrorMessage,
         isValid: _isValidPassword,
         controller: _passwordController,
@@ -96,7 +96,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
       child: EntryField(
-        title: "confirm_password",
+        title: "confirm_password".tr(),
         errorMessage: _passwordConfirmationErrorMessage,
         isValid: _isValidPasswordConfirmation,
         controller: _confirmPasswordController,
@@ -107,15 +107,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget _registerButton() {
     return ElevatedButton(
       onPressed: () => _validateInputs(),
-      child: const Text("register"),
+      child: const Text("register").tr(),
     );
   }
 
-
   void _validateInputs() async {
-    if (_validateEmail() &&
-        _validatePassword() &&
-        _validateConfirmPassword()) {
+    _validateEmail();
+    _validatePassword();
+    _validateConfirmPassword();
+
+    if (_isValidEmail && _isValidPassword && _isValidPasswordConfirmation) {
       String response = await NetworkManager().registerUser(
           _emailController!.value.text,
           _passwordController!.value.text,
@@ -128,63 +129,51 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  bool _validateConfirmPassword() {
-    if(_confirmPasswordController!.value.text.isEmpty){
+  void _validateConfirmPassword() {
+    if (_confirmPasswordController!.value.text.isEmpty) {
       _isValidPasswordConfirmation = false;
-      _passwordConfirmationErrorMessage = 'Value Can\'t Be Empty';
-      return false;
-    }else {
-      if(_confirmPasswordController!.text.isStringIdentical(_passwordController!.value.text)){
+      _passwordConfirmationErrorMessage = 'value_not_empty'.tr();
+    } else {
+      if (_confirmPasswordController!.text
+          .isStringIdentical(_passwordController!.value.text)) {
         _isValidPasswordConfirmation = true;
-        return true;
-      }else {
+      } else {
         _isValidPasswordConfirmation = false;
-        _passwordConfirmationErrorMessage = "confirm password not matching password";
-        return false;
+        _passwordConfirmationErrorMessage = "confirm_password_not_match".tr();
       }
     }
   }
 
-  bool _validatePassword() {
-     if( _passwordController!.value.text.isEmpty){
+  void _validatePassword() {
+    if (_passwordController!.value.text.isEmpty) {
       _isValidPassword = false;
-      _passwordErrorMessage = 'Value Can\'t Be Empty';
-      return false;
-    }else {
-      if(_passwordController!.value.text.isValidPasswordLength(6)){
-        if(_passwordController!.value.text.isValidPassword()) {
+      _passwordErrorMessage = 'value_not_empty'.tr();
+    } else {
+      if (_passwordController!.value.text.isValidPasswordLength(6)) {
+        if (_passwordController!.value.text.isValidPassword()) {
           _isValidPassword = true;
-          return true;
-        }else{
-          _isValidPassword=false;
-          _passwordErrorMessage = "password must contain upper characters , numbers and lower characters";
-          return false;
+        } else {
+          _isValidPassword = false;
+          _passwordErrorMessage = "password_validation".tr();
         }
-      }
-      else {
-        _passwordErrorMessage = 'password should be greater than 5 char';
+      } else {
+        _passwordErrorMessage = 'value_greater_than_5_char'.tr();
         _isValidPassword = false;
-        return false;
       }
     }
   }
 
-  bool _validateEmail() {
-     if (_emailController!.value.text.isEmpty) {
+  void _validateEmail() {
+    if (_emailController!.value.text.isEmpty) {
       _isValidEmail = false;
-      _emailErrorMessage = 'Value Can\'t Be Empty';
-      return false;
+      _emailErrorMessage = 'value_not_empty'.tr();
     } else {
       if (_emailController!.value.text.isValidEmail()) {
         _isValidEmail = true;
-        return true;
       } else {
         _isValidEmail = false;
-        _emailErrorMessage = 'enter a valid email';
-        return false;
+        _emailErrorMessage = 'enter_valid_email';
       }
     }
   }
-
-
 }

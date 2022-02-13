@@ -133,6 +133,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void _doSomething() async {
     _btnController.start();
+    Navigation(navigationKey: Navigation.navigation_Key).navigateTo(routeName: RoutesNames.homeRoute);
     await _callAPI();
     _btnController.reset();
   }

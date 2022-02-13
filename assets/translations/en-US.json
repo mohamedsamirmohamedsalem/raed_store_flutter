@@ -1,0 +1,14 @@
+{
+  "Raad_store": "Raad Store",
+  "register" : "register",
+  "login" : "login",
+  "email" : "Email",
+  "password" : "Password",
+  "confirm_password" : "Confirm Password",
+  "value_not_empty": "Value Can't Be Empty",
+  "confirm_password_not_match": "Confirm Password Not Matching Password",
+  "value_greater_than_5_char": "password should be greater than 5 char",
+  "password_validation": "password must contain upper characters , numbers and lower characters",
+  "enter_valid_email": "enter a valid email"
+
+}

@@ -22,19 +22,18 @@ class EntryField extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            title ?? "",
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
           TextField(
             controller: controller,
             obscureText: isPassword,
             decoration: InputDecoration(
               errorText: isValid ? null : errorMessage,
-              border: InputBorder.none,
+              label: Text(
+                title ?? "",
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
+              border: const OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey, width: 1.0),
+              ),
               fillColor: Colors.white30 /*Color(0xfff3f3f4)*/,
               filled: true,
             ),
