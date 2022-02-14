@@ -19,7 +19,6 @@ class CustomAppBar {
       String title, {
         List<Widget>? actions,
         double? elevation,
-        required Function leadingAction,
       }) {
     return AppBar(
       backgroundColor: kPrimaryColor,
@@ -27,7 +26,7 @@ class CustomAppBar {
       title: Text(title, style: kWhiteTextStyle),
       centerTitle: (actions ?? []).isNotEmpty ? false : true,
       leading: IconButton(
-        onPressed: ()=>leadingAction,
+        onPressed: ()=>Navigator.of(context).pop(),
         icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
       ),
       actions: actions ?? [],

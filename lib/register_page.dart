@@ -2,8 +2,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:raed_store/network/network_manager.dart';
+import 'package:raed_store/widgets/custom_app_bar.dart';
 import 'package:raed_store/widgets/entryField.dart';
 import 'package:raed_store/utils/string_extenstions.dart';
+
+import 'constants/colors.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -34,7 +37,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: CustomAppBar.getAppBarWithBackButton(context, "Register"),
       body: SingleChildScrollView(
         child: Container(
           color: Colors.white,
@@ -105,9 +108,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _registerButton() {
-    return ElevatedButton(
-      onPressed: () => _validateInputs(),
-      child: const Text("register").tr(),
+    return Container(
+      color: kPrimaryColor,
+      padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
+      child: InkWell(
+        onTap: () => _validateInputs(),
+        child: const Text("register").tr(),
+      ),
     );
   }
 
