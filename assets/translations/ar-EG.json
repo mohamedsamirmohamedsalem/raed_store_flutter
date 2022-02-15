@@ -15,5 +15,7 @@
   "agent": "العميل",
   "cash_collection_receipt": "ايصال تحصيل النقدية",
   "welcome": "مرحبا",
-  "receive_money": "استلام المال"
+  "receive_money": "استلام النقدية",
+  "save_print" : "حفظ و طباعة",
+  "paid_amount": "المبلغ المدفوع"
 }

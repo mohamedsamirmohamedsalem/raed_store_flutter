@@ -15,5 +15,7 @@
   "agent": "agent",
   "cash_collection_receipt": "cash collection receipt",
   "welcome": "welcome",
-  "receive_money": "Receive Money"
+  "receive_money": "Receive Money",
+  "save_print" : "Save & print",
+  "paid_amount": "Paid Amount"
 }

@@ -1,10 +1,13 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:raed_store/data/SaveMoneyRequest/SaveMoneyRequest.dart';
+import 'package:raed_store/data/client/clientResponse.dart';
 import 'package:raed_store/data/error_model.dart';
 import 'package:raed_store/data/login/login_response.dart';
 import 'package:raed_store/data/register/request.dart';
 import 'package:raed_store/network/end_points.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NetworkManager {
   static NetworkManager? singleton;
@@ -27,10 +30,60 @@ class NetworkManager {
     return _validateResponse(response);
   }
 
+  Future<LoginResponse?> getLoginResponseFromSharedPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    final LoginResponse? loginResponse =
+        LoginResponse.fromJson(json.decode(prefs.getString('login_response')!));
+    return loginResponse;
+  }
+
   Future<String> getClientBalance(String accountNumber) async {
+    LoginResponse? loginResponse = await getLoginResponseFromSharedPreference();
     var response = await http.post(Uri.parse(NetworkHelper().getClientBalance),
-        body: '{"AccNumber":"$accountNumber"}');
-    return response.body;
+        body: '{"AccNumber":"$accountNumber"}',
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer ${loginResponse!.accessToken}"
+        });
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw Exception("unable to get client balance");
+    }
+  }
+
+  Future<List<ClientResponse>> getAgents() async {
+    LoginResponse? loginResponse = await getLoginResponseFromSharedPreference();
+    var response =
+        await http.post(Uri.parse(NetworkHelper().getClients), headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer ${loginResponse!.accessToken}"
+    });
+    if (response.statusCode == 200) {
+      List<dynamic> list = json.decode(response.body);
+      List<ClientResponse> clients = [];
+      for (int i = 0; i < list.length; i++) {
+        clients.add(ClientResponse.fromJson(list[i]));
+      }
+      return clients;
+    } else {
+      throw Exception("unable to get Agents");
+    }
+  }
+
+  Future<String> saveMoney(SaveMoneyRequest saveMoneyRequest) async {
+    LoginResponse? loginResponse = await getLoginResponseFromSharedPreference();
+    var response = await http.post(Uri.parse(NetworkHelper().saveReceivedMoney),
+        body: json.encode(saveMoneyRequest),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer ${loginResponse!.accessToken}"
+        });
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw Exception("unable to Save Received Money");
+    }
   }
 
   dynamic _validateResponse(http.Response response) {
@@ -51,9 +104,9 @@ class NetworkManager {
       encoding: Encoding.getByName('utf-8'),
       body: {"grant_type": "password", "username": email, "password": password},
     );
-    if(response.statusCode == 200) {
+    if (response.statusCode == 200) {
       return LoginResponse.fromJson(json.decode(response.body));
-    }else {
+    } else {
       throw Exception('error in login');
     }
   }

@@ -5,4 +5,6 @@ class NetworkHelper {
   String login = baseUrl + "token";
   String getClientBalance = baseUrl + "AccountData/GetClinetBalance";
   String saveReceivedMoney = baseUrl + "AccountData/SaveReceiveMoney";
+
+  String getClients = baseUrl + "AccountData/GetClinets";
 }

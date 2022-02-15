@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:raed_store/utils/navigation/navigation.dart';
 import 'package:raed_store/utils/string_extenstions.dart';
 import 'package:raed_store/widgets/entryField.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'constants/colors.dart';
 import 'constants/routes.dart';
@@ -151,6 +153,7 @@ class _LoginPageState extends State<LoginPage> {
                 ));
       }
       if (loginResponse != null) {
+        await saveLoginResponseToSharedPereferance(loginResponse);
         Navigation(navigationKey: Navigation.navigation_Key)
             .navigateTo(routeName: RoutesNames.homeRoute);
         // save login response to SB
@@ -165,6 +168,11 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     _btnController.reset();
+  }
+
+  Future<void> saveLoginResponseToSharedPereferance(loginResponse) async {
+     final prefs = await SharedPreferences.getInstance();
+    prefs.setString("login_response", json.encode(loginResponse));
   }
 
   Widget _divider(String text) {
