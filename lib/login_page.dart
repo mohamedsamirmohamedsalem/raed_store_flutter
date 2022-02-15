@@ -90,7 +90,7 @@ class _LoginPageState extends State<LoginPage> {
         // _divider(Languages.of(context).kOrUsing),
         // facebookAndGoogle(),
         // SizedBox(height: 10),
-        _divider("kOr"),
+        _divider("Or"),
         const SizedBox(height: 10),
         _skipButton(),
       ],
@@ -108,7 +108,7 @@ class _LoginPageState extends State<LoginPage> {
           side: const BorderSide(color: kPrimaryColor),
         ),
         child: const Text(
-          "kSkip",
+          "Skip",
           style: TextStyle(
             color: kPrimaryColor,
             fontSize: 20,
@@ -123,14 +123,14 @@ class _LoginPageState extends State<LoginPage> {
     return RoundedLoadingButton(
       height: 50,
       elevation: 3,
-      width: AppDimensions.width,
+      width: 180,//AppDimensions.width,
       borderRadius: 15,
       animateOnTap: true,
       color: kPrimaryColor,
       controller: _btnController,
       onPressed: _login,
       child: const Text(
-        "kLogin",
+        "Login",
         style: TextStyle(fontSize: 20, color: Colors.white),
       ),
     );
@@ -209,7 +209,7 @@ class _LoginPageState extends State<LoginPage> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         const Text(
-          "kNoAccount",
+          "NoAccount",
           style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
         ),
         const SizedBox(
@@ -219,7 +219,7 @@ class _LoginPageState extends State<LoginPage> {
           onTap: () => Navigation(navigationKey: navigatorKey)
               .navigateTo(routeName: RoutesNames.registerRoute),
           child: const Text(
-            "kRegister",
+            "Register",
             style: TextStyle(
               color: kPrimaryColor,
               fontSize: 20,
@@ -236,7 +236,7 @@ class _LoginPageState extends State<LoginPage> {
       children: <Widget>[
         EntryField(title: "email", controller: emailController),
         EntryField(
-            title: "kPassword",
+            title: "Password",
             isPassword: true,
             controller: passwordController),
       ],
