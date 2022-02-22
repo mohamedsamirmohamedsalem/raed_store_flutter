@@ -156,7 +156,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _isValidPassword = false;
       _passwordErrorMessage = 'value_not_empty'.tr();
     } else {
-      if (_passwordController!.value.text.isValidPasswordLength(6)) {
+      if (_passwordController!.value.text.isValidPasswordLength(8)) {
         if (_passwordController!.value.text.isValidPassword()) {
           _isValidPassword = true;
         } else {

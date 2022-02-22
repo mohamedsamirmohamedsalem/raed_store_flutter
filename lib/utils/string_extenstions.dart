@@ -14,6 +14,6 @@ extension StringOperations on String {
   }
 
   bool isValidPassword() {
-    return RegExp("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}\$").hasMatch(this);
+    return RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$').hasMatch(this);
   }
 }

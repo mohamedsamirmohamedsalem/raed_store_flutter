@@ -17,5 +17,18 @@
   "welcome": "welcome",
   "receive_money": "Receive Money",
   "save_print" : "Save & print",
-  "paid_amount": "Paid Amount"
+  "paid_amount": "Paid Amount",
+  "sale_bill": "Sale Bill",
+  "return_bill": "Sale Return Bill",
+  "add": "Add",
+  "quantity": "Quantity",
+  "bill_details": "Bill Details",
+  "price": "price : ",
+  "total": "Total : ",
+  "discount": "Discount : ",
+  "please_enter_received_Money": "please enter received Money",
+  "please_enter_quantity": "please enter quantity",
+  "alert": "Alert",
+  "ok": "Ok",
+  "show_balance": "Show Balance"
 }

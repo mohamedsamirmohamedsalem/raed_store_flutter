@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:raed_store/ReceiveMoneyScreen.dart';
+import 'package:raed_store/bill_screen.dart';
 import 'package:raed_store/constants/routes.dart';
 import 'package:raed_store/homeScreen.dart';
 import 'package:raed_store/login_page.dart';
@@ -35,6 +36,10 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case RoutesNames.receiveMoneyRoute :
       return MaterialPageRoute(
         builder: (context) => const ReceiveMoneyScreen(),
+      );
+    case RoutesNames.billRoute :
+      return MaterialPageRoute(
+        builder: (context) => BillScreen(billType: settings.arguments as BillType)
       );
     default:
       return MaterialPageRoute(

@@ -17,5 +17,19 @@
   "welcome": "مرحبا",
   "receive_money": "استلام النقدية",
   "save_print" : "حفظ و طباعة",
-  "paid_amount": "المبلغ المدفوع"
+  "paid_amount": "المبلغ المدفوع",
+  "sale_bill": "فاتورة بيع",
+  "return_bill": "فاتورة مرتجع بيع",
+  "add": "اضافة",
+  "quantity": "الكمية",
+  "bill_details": "تفاصيل الفاتورة",
+  "price": "السعر : ",
+  "total": "الاجمالى : ",
+  "discount": "الخصم : ",
+  "please_enter_received_Money": "برجاء ادخال المبلغ المحصل",
+  "please_enter_quantity": "برجاء ادخال الكمية",
+  "alert": "تنبيه",
+  "ok": "حسنا",
+  "show_balance": "اظهار الرصيد"
+
 }
