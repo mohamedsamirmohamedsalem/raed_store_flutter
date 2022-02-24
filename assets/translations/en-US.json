@@ -1,6 +1,5 @@
 {
   "Raad_store": "Raad Store",
-  "register": "register",
   "login": "login",
   "email": "Email",
   "password": "Password",
@@ -30,5 +29,23 @@
   "please_enter_quantity": "please enter quantity",
   "alert": "Alert",
   "ok": "Ok",
-  "show_balance": "Show Balance"
+  "show_balance": "Show Balance",
+  "cannot_find_transaction_number":"cannot find transaction number",
+  "invoice":"Invoice",
+  "invoice_number":"Invoice Number",
+  "client_name":"Client Name",
+  "invoice_type":"Invoice Type",
+  "phone":"phone",
+  "provider_phone":"Provider Phone",
+  "account_balance_before":"Account Balance Before",
+  "account_balance_after":"Account Balance After",
+  "item_id":"Item Id",
+  "item_name":"Item Name",
+  "package_name":"Package Name",
+  "unable_to_register":"Unable to register",
+  "registered_successfully":"registered Successfully",
+  "register":"Register",
+  "unable_to_login":"Unable to Login",
+  "NoAccount":"NoAccount"
+  
 }

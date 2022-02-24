@@ -8,5 +8,6 @@ class NetworkHelper {
 
   String getClients = baseUrl + "AccountData/GetClinets";
   String getItemsByID = baseUrl + "Item/GetItemsWithBalance";
-  String saveInvoice = baseUrl +"Invoice/SaveInvoice";
+  String saveInvoice = baseUrl + "Invoice/SaveInvoice";
+  String printInvoice = baseUrl + "Invoice/PrintInvoice";
 }

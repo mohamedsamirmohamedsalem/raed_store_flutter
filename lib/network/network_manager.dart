@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:http/http.dart' as http;
 import 'package:raed_store/bill_screen.dart';
+import 'package:raed_store/data/Invoice/invoice_response.dart';
 import 'package:raed_store/data/SaveMoneyRequest/SaveMoneyRequest.dart';
 import 'package:raed_store/data/client/clientResponse.dart';
 import 'package:raed_store/data/error_model.dart';
@@ -129,11 +131,10 @@ class NetworkManager {
   }
 
   dynamic _validateResponse(http.Response response) {
-    switch (response.statusCode) {
-      case 200:
-        return response.body;
-      case 400:
-        return ErrorModel.fromJson(json.decode(response.body)).errors![0];
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw Exception("unable_to_register".tr());
     }
   }
 
@@ -150,6 +151,21 @@ class NetworkManager {
       return LoginResponse.fromJson(json.decode(response.body));
     } else {
       throw Exception('error in login');
+    }
+  }
+
+  Future<InvoiceResponse> printInvoice(String trasID) async {
+    LoginResponse? loginResponse = await getLoginResponseFromSharedPreference();
+    var response = await http.post(Uri.parse(NetworkHelper().printInvoice),
+        body: '{"TransId":"$trasID"}',
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer ${loginResponse!.accessToken}"
+        });
+    if (response.statusCode == 200) {
+      return InvoiceResponse.fromJson(json.decode(response.body));
+    } else {
+      throw Exception("unable to print Invoice");
     }
   }
 }

@@ -1,6 +1,5 @@
 {
   "Raad_store": "الرائد ستور",
-  "register": "تسجيل",
   "login": "تسجيل الدخول",
   "email": "البريد الاكترونى",
   "password": "كلمة المرور",
@@ -29,7 +28,24 @@
   "please_enter_received_Money": "برجاء ادخال المبلغ المحصل",
   "please_enter_quantity": "برجاء ادخال الكمية",
   "alert": "تنبيه",
-  "ok": "حسنا",
-  "show_balance": "اظهار الرصيد"
+  "ok": "نعم",
+  "show_balance": "اظهار الرصيد",
+  "cannot_find_transaction_number":"لا يمكن الحصول على رقم العملية",
+  "invoice":"فاتورة",
+  "invoice_number":"رقم الفاتورة",
+  "client_name":"اسم العميل",
+  "invoice_type":"نوع الفاتورة",
+  "phone":"رقم الموبيل ",
+  "provider_phone":"رقم الموزع",
+  "account_balance_before":"رصيد الحساب قبل",
+  "account_balance_after":"رصيد الحساب بعد",
+  "item_id":"Item Id",
+  "item_name":"اسم المنتج",
+  "package_name":"الوحدة",
+  "unable_to_register":"غير قادر على التسجيل ",
+  "registered_successfully":"تم التسجيل بنجاح",
+  "register":"التسجيل",
+  "unable_to_login":"غير قادر على تسجيل الدخول",
+  "NoAccount":"ليس لديك حساب"
 
 }

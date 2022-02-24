@@ -1,13 +1,14 @@
 class GetItemWithBalanceByIdResponse {
   int? itemId;
   int? itemIdId;
-  int? ItemUnitId;
+  int? itemUnitId;
   String? itemName;
   double? itemBalance;
   double? amount;
   double? itemAmountBuy;
   int? qtyInpackage;
   String? itemDesc;
+  String? itemUnitName;
 
   GetItemWithBalanceByIdResponse(
       {this.itemId,
@@ -15,7 +16,8 @@ class GetItemWithBalanceByIdResponse {
       this.itemName,
       this.itemBalance,
       this.amount,
-      this.ItemUnitId,
+      this.itemUnitId,
+      this.itemUnitName,
       this.itemAmountBuy,
       this.qtyInpackage,
       this.itemDesc});
@@ -26,23 +28,25 @@ class GetItemWithBalanceByIdResponse {
     itemName = json['ItemName'];
     itemBalance = json['itemBalance'];
     amount = json['Amount'];
-    ItemUnitId = json["ItemUnitId"];
+    itemUnitName = json['ItemUnitName'];
+    itemUnitId = json["ItemUnitId"];
     itemAmountBuy = json['ItemAmountBuy'];
     qtyInpackage = json['QtyInpackage'];
     itemDesc = json['ItemDesc'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['ItemId'] = this.itemId;
-    data['ItemIdId'] = this.itemIdId;
-    data['ItemName'] = this.itemName;
-    data['itemBalance'] = this.itemBalance;
-    data['Amount'] = this.amount;
-    data['ItemUnitId'] = this.ItemUnitId;
-    data['ItemAmountBuy'] = this.itemAmountBuy;
-    data['QtyInpackage'] = this.qtyInpackage;
-    data['ItemDesc'] = this.itemDesc;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['ItemId'] = itemId;
+    data['ItemIdId'] = itemIdId;
+    data['ItemName'] = itemName;
+    data['itemBalance'] = itemBalance;
+    data['Amount'] = amount;
+    data['ItemUnitName'] = itemUnitName;
+    data['ItemUnitId'] = itemUnitId;
+    data['ItemAmountBuy'] = itemAmountBuy;
+    data['QtyInpackage'] = qtyInpackage;
+    data['ItemDesc'] = itemDesc;
     return data;
   }
 }

@@ -14,7 +14,7 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
-  final _splashDelay = 4;
+  final _splashDelay = 2;
 
   @override
   void initState() {
@@ -28,17 +28,14 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   void _navigationPage() async {
-    //await UserSingleton().getStoredUser();
     Navigation(navigationKey: navigatorKey).navigateAndReplacement(routeName: RoutesNames.loginRoute);
-
-
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      child: Center(child: Image(image: AssetImage(AppImages.SPLASH))),
+      child: const Center(child: Image(image: AssetImage('assets/images/raad_store_splash.jpeg'),width: 200,height: 200,)),
     );
   }
 }

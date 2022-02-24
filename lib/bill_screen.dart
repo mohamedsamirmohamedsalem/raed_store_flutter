@@ -3,13 +3,13 @@ import 'dart:core';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:raed_store/data/Invoice/invoice_response.dart';
 import 'package:raed_store/data/client/clientResponse.dart';
 import 'package:raed_store/data/get_items_by_id/response.dart';
-import 'package:raed_store/data/save_invoice/request.dart';
+import 'package:raed_store/data/save_invoice/request.dart' as invoiceRequest;
 import 'package:raed_store/data/save_invoice/response.dart';
+import 'package:raed_store/helper/bill_pdf.dart';
 import 'package:raed_store/network/network_manager.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
 
 class BillScreen extends StatefulWidget {
   BillType? billType;
@@ -22,7 +22,7 @@ class BillScreen extends StatefulWidget {
 
 class _BillScreenState extends State<BillScreen> {
   bool _isClientBalanceReceived = false;
-  bool _isBillSaved = true;
+  bool _isLoading = true;
 
   // Clients
   List<ClientResponse> _agentsList = [];
@@ -34,7 +34,7 @@ class _BillScreenState extends State<BillScreen> {
   TextEditingController _itemsQuantityController = TextEditingController();
 
   // bill Details
-  List<LstTransDetailsModel> _billRecords = [];
+  List<invoiceRequest.LstTransDetailsModel> _billRecords = [];
 
   // received Money Text Field
   TextEditingController _receivedMoneyController = TextEditingController();
@@ -44,8 +44,8 @@ class _BillScreenState extends State<BillScreen> {
   double totalDiscount = 0;
   double totalAmountAfterDiscount = 0;
 
-  //
-  final pdf = pw.Document();
+  // print bill
+  SaveInvoiceResponse? saveInvoiceResponse;
 
   @override
   void initState() {
@@ -75,6 +75,15 @@ class _BillScreenState extends State<BillScreen> {
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Colors.yellow,
+        actions: [
+          ElevatedButton(
+            onPressed: (() => _onsaveBillPressed()),
+            child: const Text(
+              "save_print",
+              style: TextStyle(color: Colors.black),
+            ).tr(),
+          )
+        ],
         title: Text(
           widget.billType == BillType.saleBill
               ? "sale_bill".tr()
@@ -88,6 +97,7 @@ class _BillScreenState extends State<BillScreen> {
                 SingleChildScrollView(
                   child: Column(
                     children: [
+                      _buildTotalAmountRow(),
                       _buildClientArea(),
                       _buildItemsCard(),
                       _buildBillDetailsCard(),
@@ -96,7 +106,7 @@ class _BillScreenState extends State<BillScreen> {
                     ],
                   ),
                 ),
-                _isBillSaved
+                _isLoading
                     ? Container()
                     : const Center(
                         child: CircularProgressIndicator(
@@ -153,6 +163,7 @@ class _BillScreenState extends State<BillScreen> {
       }).toList(),
       value: _selectedClientValue,
       onChanged: (value) async {
+        _resetCells();
         setState(() {
           _selectedClientValue = value;
         });
@@ -172,7 +183,7 @@ class _BillScreenState extends State<BillScreen> {
                 _buildItemsDropDown(),
                 _buildQuantityEntryField(),
                 Container(
-                  margin: EdgeInsets.symmetric(vertical: 10),
+                  margin: const EdgeInsets.symmetric(vertical: 10),
                   child: ElevatedButton(
                       style: ButtonStyle(
                         backgroundColor:
@@ -180,13 +191,13 @@ class _BillScreenState extends State<BillScreen> {
                       ),
                       onPressed: () {
                         if (_itemsQuantityController.value.text.isNotEmpty) {
-                          _billRecords.add(LstTransDetailsModel(
+                          _billRecords.add(invoiceRequest.LstTransDetailsModel(
                               itemId: _currentSelectedItem!.itemId!,
                               itemIdId: _currentSelectedItem!.itemIdId!,
                               qtyInpackage: _currentSelectedItem!.qtyInpackage!,
                               qty: int.parse(
                                   _itemsQuantityController.value.text),
-                              itemUnitId: _currentSelectedItem!.ItemUnitId!,
+                              itemUnitId: _currentSelectedItem!.itemUnitId!,
                               amount: _currentSelectedItem!.amount!,
                               totalItemAmount: int.parse(
                                       _itemsQuantityController.value.text) *
@@ -256,7 +267,6 @@ class _BillScreenState extends State<BillScreen> {
                                         horizontal: 10),
                                     height: 100,
                                     child: Row(
-                                      // alignment: Alignment.topRight,
                                       children: [
                                         Column(
                                           mainAxisAlignment:
@@ -265,22 +275,19 @@ class _BillScreenState extends State<BillScreen> {
                                             Text(
                                                 _billRecords[i].itemName ?? ""),
                                             Text("price".tr() +
-                                                    _billRecords[i]
-                                                        .amount
-                                                        .toString() ??
-                                                ""),
+                                                _billRecords[i]
+                                                    .amount
+                                                    .toString()),
                                             Text("total".tr() +
-                                                    _billRecords[i]
-                                                        .totalItemAmount
-                                                        .toString() ??
-                                                "")
+                                                _billRecords[i]
+                                                    .totalItemAmount
+                                                    .toString())
                                           ],
                                         ),
                                         Spacer(),
                                         IconButton(
-                                            onPressed: () => setState(() {
-                                                  _billRecords.removeAt(i);
-                                                }),
+                                            onPressed: () =>
+                                                _onCancelItemPressed(i),
                                             icon: const Icon(
                                               Icons.cancel,
                                               color: Colors.red,
@@ -303,17 +310,17 @@ class _BillScreenState extends State<BillScreen> {
                           const SizedBox(
                             height: 2,
                           ),
-                          Text("price".tr() + totalAmount.toString()),
-                          const SizedBox(
-                            height: 2,
-                          ),
-                          Text("discount".tr() + totalDiscount.toString()),
-                          const SizedBox(
-                            height: 2,
-                          ),
-                          Text("total".tr() +
-                                  totalAmountAfterDiscount.toString() ??
-                              "")
+                          // Text("price".tr() + totalAmount.toString()),
+                          // const SizedBox(
+                          //   height: 2,
+                          // ),
+                          // Text("discount".tr() + totalDiscount.toString()),
+                          // const SizedBox(
+                          //   height: 2,
+                          // ),
+                          // Text("total".tr() +
+                          //         totalAmountAfterDiscount.toString() ??
+                          //     "")
                         ],
                       ),
                     )),
@@ -350,51 +357,7 @@ class _BillScreenState extends State<BillScreen> {
             backgroundColor: MaterialStateProperty.all(Colors.yellow),
           ),
           onPressed: () async {
-            if (_receivedMoneyController.value.text.isNotEmpty) {
-              setState(() {
-                _isBillSaved = false;
-              });
-              try {
-                SaveInvoiceResponse response = await NetworkManager()
-                    .saveInvoice(
-                        widget.billType!,
-                        SaveInvoiceRequest(
-                            comment: "Mobile",
-                            transTypeId:
-                                widget.billType == BillType.saleBill ? 2 : 3,
-                            lstTransDetailsModel: _billRecords,
-                            discountValue: totalDiscount.toString(),
-                            net: totalAmount.toString(),
-                            paid: _receivedMoneyController.value.text,
-                            customrtInvoiceDiscount:
-                                _selectedClientValue?.customrtInvoiceDiscount ??
-                                    0.0,
-                            clientId: int.parse(
-                                _selectedClientValue?.accNumber ?? "0"),
-                            totalInvoiceAmount:
-                                totalAmountAfterDiscount.toString()));
-                _showErrorDialog(null, errorMSG: response.message.toString());
-                _isBillSaved = true;
-                totalAmountAfterDiscount = 0;
-                totalAmount = 0;
-                totalDiscount = 0;
-                _billRecords = [];
-                _receivedMoneyController = TextEditingController();
-                pdf.addPage(pw.Page(
-                    pageFormat: PdfPageFormat.a4,
-                    build: (pw.Context context) {
-                      return pw.Center(
-                        child: pw.Text("Hello World"),
-                      ); // Center
-                    })); // Page
-              } on Exception catch (_, e) {
-                _isClientBalanceReceived = true;
-                _showErrorDialog(e);
-              }
-            } else {
-              _showErrorDialog(null,
-                  errorMSG: "please_enter_received_Money".tr());
-            }
+            await _onsaveBillPressed();
           },
           child: const Text(
             "save_print",
@@ -403,7 +366,51 @@ class _BillScreenState extends State<BillScreen> {
         ),
       );
 
-  void _showErrorDialog(StackTrace? e, {String errorMSG = ""}) {
+  Future<void> _onsaveBillPressed() async {
+    if (_receivedMoneyController.value.text.isNotEmpty) {
+      setState(() {
+        _isLoading = false;
+      });
+      try {
+        saveInvoiceResponse = await NetworkManager().saveInvoice(
+            widget.billType!,
+            invoiceRequest.SaveInvoiceRequest(
+                comment: "Mobile",
+                transTypeId: widget.billType == BillType.saleBill ? 2 : 3,
+                lstTransDetailsModel: _billRecords,
+                discountValue: totalDiscount.toString(),
+                net: totalAmount.toString(),
+                paid: _receivedMoneyController.value.text,
+                customrtInvoiceDiscount:
+                    _selectedClientValue?.customrtInvoiceDiscount ?? 0.0,
+                clientId: int.parse(_selectedClientValue?.accNumber ?? "0"),
+                totalInvoiceAmount: totalAmountAfterDiscount.toString()));
+        _showErrorDialog(
+          null,
+          errorMSG: saveInvoiceResponse!.message.toString(),
+          // onPostivePressed: _printInvoice,
+        );
+        _resetCells();
+      } on Exception catch (_, e) {
+        _isClientBalanceReceived = true;
+        _showErrorDialog(e);
+      }
+    } else {
+      _showErrorDialog(null, errorMSG: "please_enter_received_Money".tr());
+    }
+  }
+
+  void _resetCells() {
+    _isLoading = true;
+    totalAmountAfterDiscount = 0;
+    totalAmount = 0;
+    totalDiscount = 0;
+    _billRecords = [];
+    _receivedMoneyController = TextEditingController();
+  }
+
+  void _showErrorDialog(StackTrace? e,
+      {String errorMSG = "", Function? onPostivePressed}) {
     showDialog(
         context: context,
         builder: (_) => AlertDialog(
@@ -412,7 +419,9 @@ class _BillScreenState extends State<BillScreen> {
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(Colors.yellow),
                     ),
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () => onPostivePressed == null
+                        ? Navigator.of(context).pop()
+                        : onPostivePressed(),
                     child: const Text("ok").tr())
               ],
               title: Text('alert'.tr()),
@@ -480,6 +489,71 @@ class _BillScreenState extends State<BillScreen> {
           ], // Only numbers can be entered
         ),
       );
+
+  void _onCancelItemPressed(int index) {
+    final itemToRemove = _billRecords[index];
+    totalAmount -= itemToRemove.totalItemAmount!;
+    totalDiscount =
+        totalAmount * _selectedClientValue!.customrtInvoiceDiscount!;
+    totalAmountAfterDiscount = totalAmount - totalDiscount;
+    setState(() {
+      _billRecords.removeAt(index);
+    });
+  }
+
+  Widget _buildTotalAmountRow() => Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Column(
+            children: [
+              Text(
+                "price".tr(),
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Text(totalAmount.toString()),
+            ],
+          ),
+          Column(
+            children: [
+              Text(
+                "discount".tr(),
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Text(totalDiscount.toString()),
+            ],
+          ),
+          Column(
+            children: [
+              Text(
+                "total".tr(),
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Text(totalAmountAfterDiscount.toString()),
+            ],
+          ),
+        ],
+      );
+
+  void _printInvoice() async {
+    Navigator.of(context).pop();
+    setState(() {
+      _isLoading = false;
+    });
+    try {
+      if (saveInvoiceResponse!.transId == null) {
+        throw Exception("cannot_find_transaction_number".tr());
+      } else {
+        InvoiceResponse response =
+            await NetworkManager().printInvoice(saveInvoiceResponse!.transId!);
+        setState(() {
+          _isLoading = true;
+        });
+        PDFGeneratorHelper(response).generatePDF();
+      }
+    } on Exception catch (_, e) {
+      _showErrorDialog(e);
+    }
+  }
 }
 
 enum BillType { saleBill, returnBill }

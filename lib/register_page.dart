@@ -25,6 +25,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String _emailErrorMessage = "";
   String _passwordErrorMessage = "";
   String _passwordConfirmationErrorMessage = "";
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -37,20 +38,47 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar.getAppBarWithBackButton(context, "Register"),
-      body: SingleChildScrollView(
-        child: Container(
-          color: Colors.white,
-          child: Column(
-            children: [
-              _registerHeader(),
-              _registerTitle(),
-              _registerEmail(),
-              _registerPassword(),
-              _registerConfirmPassword(),
-              _registerButton(),
-            ],
-          ),
+      appBar: AppBar(
+        backgroundColor: Colors.yellow,
+        iconTheme: IconThemeData(color: Colors.black),
+        centerTitle: true,
+        title: const Text(
+          "register",
+          style: TextStyle(color: Colors.black),
+        ).tr(),
+      ),
+      body: Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        color: Colors.white,
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              child: Container(
+                color: Colors.white,
+                child: Column(
+                  children: [
+                    _registerHeader(),
+                    _registerTitle(),
+                    _registerEmail(),
+                    _registerPassword(),
+                    _registerConfirmPassword(),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    _registerButton(),
+                  ],
+                ),
+              ),
+            ),
+            _isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.yellow,
+                    ),
+                  )
+                : Container()
+          ],
         ),
       ),
     );
@@ -58,8 +86,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Widget _registerHeader() {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 50, horizontal: 10),
-      child: const Text("Raad_store").tr(),
+      margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+      width: 200,
+      height: 100,
+      child:
+          const Image(image: AssetImage('assets/images/raad_store_logo.jpeg')),
     );
   }
 
@@ -67,7 +98,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Container(
       alignment: Alignment.center,
       margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-      child: const Text("register").tr(),
+      child: const Text("register",style: TextStyle(fontSize: 20),).tr(),
     );
   }
 
@@ -87,6 +118,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
       child: EntryField(
+        isPassword: true,
         title: "password".tr(),
         errorMessage: _passwordErrorMessage,
         isValid: _isValidPassword,
@@ -99,6 +131,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
       child: EntryField(
+        isPassword: true,
         title: "confirm_password".tr(),
         errorMessage: _passwordConfirmationErrorMessage,
         isValid: _isValidPasswordConfirmation,
@@ -108,13 +141,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _registerButton() {
-    return Container(
-      color: kPrimaryColor,
-      padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
-      child: InkWell(
-        onTap: () => _validateInputs(),
-        child: const Text("register").tr(),
-      ),
+    return ElevatedButton(
+      style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(Colors.yellow)),
+      onPressed: () => _validateInputs(),
+      child: const Text(
+        "register",
+        style: TextStyle(color: Colors.black),
+      ).tr(),
     );
   }
 
@@ -124,12 +158,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _validateConfirmPassword();
 
     if (_isValidEmail && _isValidPassword && _isValidPasswordConfirmation) {
-      String response = await NetworkManager().registerUser(
-          _emailController!.value.text,
-          _passwordController!.value.text,
-          _confirmPasswordController!.value.text);
-      if (kDebugMode) {
-        print(response);
+      setState(() {
+        _isLoading = true;
+      });
+      try {
+        String response = await NetworkManager().registerUser(
+            _emailController!.value.text,
+            _passwordController!.value.text,
+            _confirmPasswordController!.value.text);
+        if (kDebugMode) {
+          print(response);
+        }
+        if (response.contains('"Errors":[]')) {
+          _showDialog(null, errorMSG: "registered_successfully".tr(),
+              onPostivePressed: () {
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
+          });
+        } else {
+          _showDialog(null, errorMSG: response);
+        }
+        setState(() {
+          _isLoading = false;
+        });
+      } on Exception catch (_, e) {
+        _showDialog(e);
       }
     } else {
       setState(() {});
@@ -182,5 +235,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _emailErrorMessage = 'enter_valid_email';
       }
     }
+  }
+
+  void _showDialog(StackTrace? e,
+      {String errorMSG = "", Function? onPostivePressed}) {
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              actions: [
+                ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.yellow),
+                    ),
+                    onPressed: () => onPostivePressed == null
+                        ? Navigator.of(context).pop()
+                        : onPostivePressed(),
+                    child: const Text("ok").tr())
+              ],
+              title: Text('alert'.tr()),
+              content: Text(e != null ? e.toString() : errorMSG),
+            ));
   }
 }

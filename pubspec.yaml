@@ -19,7 +19,11 @@ dependencies:
   http: ^0.13.4
   easy_localization: ^3.0.0
   shared_preferences: ^2.0.13
-  pdf: ^3.7.1
+  syncfusion_flutter_pdf: ^19.4.53-beta
+  bluetooth_print: ^3.0.1 
+  path_provider: ^2.0.9
+  open_file: ^3.2.1
+  google_fonts: ^2.3.1
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -54,5 +58,8 @@ flutter:
         - asset: assets/fonts/Nunito/Nunito-BoldItalic.ttf
         - asset: assets/fonts/Nunito/Nunito-Italic.ttf
         - asset: assets/fonts/Nunito/Nunito-Regular.ttf
+    - family : arial
+      fonts:
+        - asset: assets/fonts/arial.ttf    
 
 

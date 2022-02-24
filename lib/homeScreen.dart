@@ -59,7 +59,8 @@ class HomeScreen extends StatelessWidget {
                       child: Card(
                         color: Colors.green,
                         child: Container(
-                            alignment: Alignment.center, child: Text("return_bill".tr())),
+                            alignment: Alignment.center,
+                            child: Text("return_bill".tr())),
                       ),
                     ),
                   ),
@@ -91,4 +92,6 @@ class HomeScreen extends StatelessWidget {
     Navigation(navigationKey: Navigation.navigation_Key)
         .navigateTo(routeName: RoutesNames.billRoute, arg: saleBill);
   }
+
+  
 }

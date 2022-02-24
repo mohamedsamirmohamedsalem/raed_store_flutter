@@ -14,7 +14,7 @@ void main() async {
       path: 'assets/translations',
       // <-- change the path of the translation files
       fallbackLocale: const Locale('en', 'US'),
-      child: MyApp()));
+      child: const MyApp()));
 }
 
 class MyApp extends StatefulWidget {

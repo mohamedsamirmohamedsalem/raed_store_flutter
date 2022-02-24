@@ -68,8 +68,9 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _loginButtons() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
+        _loginHeader(),
         Text("welcome".tr(),
             style: kBigBlackTextStyle.copyWith(fontWeight: FontWeight.w500)),
         const SizedBox(height: 20),
@@ -90,12 +91,22 @@ class _LoginPageState extends State<LoginPage> {
         // _divider(Languages.of(context).kOrUsing),
         // facebookAndGoogle(),
         // SizedBox(height: 10),
-        _divider("Or"),
-        const SizedBox(height: 10),
-        _skipButton(),
+        // _divider("Or"),
+        // const SizedBox(height: 10),
+        // _skipButton(),
       ],
     );
   }
+   Widget _loginHeader() {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+      width: 200,
+      height: 100,
+      child:
+          const Image(image: AssetImage('assets/images/raad_store_logo.jpeg')),
+    );
+  }
+
 
   Widget _skipButton() {
     return Center(
@@ -129,9 +140,9 @@ class _LoginPageState extends State<LoginPage> {
       color: kPrimaryColor,
       controller: _btnController,
       onPressed: _login,
-      child: const Text(
-        "Login",
-        style: TextStyle(fontSize: 20, color: Colors.white),
+      child:  Text(
+        "login".tr(),
+        style: const TextStyle(fontSize: 20, color: Colors.black),
       ),
     );
   }
@@ -145,12 +156,7 @@ class _LoginPageState extends State<LoginPage> {
         loginResponse = await NetworkManager()
             .login(emailController.value.text, passwordController.value.text);
       } catch (e) {
-        showDialog(
-            context: context,
-            builder: (_) => const AlertDialog(
-                  title: Text('Error'),
-                  content: Text('Unable to Login'),
-                ));
+        showDialogError();
       }
       if (loginResponse != null) {
         await saveLoginResponseToSharedPereferance(loginResponse);
@@ -159,15 +165,19 @@ class _LoginPageState extends State<LoginPage> {
         // save login response to SB
       }
     } else {
-      showDialog(
-          context: context,
-          builder: (_) => const AlertDialog(
-                title: Text('Error'),
-                content: Text('Unable to Login'),
-              ));
+      showDialogError();
     }
 
     _btnController.reset();
+  }
+
+  void showDialogError() {
+     showDialog(
+        context: context,
+        builder: (_) =>  AlertDialog(
+              title: Text('alert'.tr()),
+              content: Text('unable_to_login'.tr()),
+            ));
   }
 
   Future<void> saveLoginResponseToSharedPereferance(loginResponse) async {
@@ -208,9 +218,9 @@ class _LoginPageState extends State<LoginPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        const Text(
-          "NoAccount",
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+         Text(
+          "NoAccount".tr(),
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
         ),
         const SizedBox(
           width: 10,
@@ -218,9 +228,9 @@ class _LoginPageState extends State<LoginPage> {
         GestureDetector(
           onTap: () => Navigation(navigationKey: navigatorKey)
               .navigateTo(routeName: RoutesNames.registerRoute),
-          child: const Text(
-            "Register",
-            style: TextStyle(
+          child:  Text(
+            "register".tr(),
+            style: const TextStyle(
               color: kPrimaryColor,
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -234,35 +244,12 @@ class _LoginPageState extends State<LoginPage> {
   Widget _emailPasswordWidget() {
     return Column(
       children: <Widget>[
-        EntryField(title: "email", controller: emailController),
+        EntryField(title: "email".tr(), controller: emailController),
         EntryField(
-            title: "Password",
+            title: "Password".tr(),
             isPassword: true,
             controller: passwordController),
       ],
     );
-  }
-
-  //API:- Section
-  Future _callAPI() async {
-    // Map<String, String> postRequestData = {
-    //   "email": emailController.text,
-    //   "password": passwordController.text,
-    // };
-    //
-    // var res = await NetworkingHelper(endPoint: kLoginApi)
-    //     .postData(postRequest: postRequestData);
-    // logInModel = LogInModel.fromJson(res);
-    // if (_logInModel.status == NetworkStatus.success) {
-    //   final user = _logInModel.data.user;
-    //   final userToken = _logInModel.token;
-    //   user.password = passwordController.text;
-    //   UserSingleton().setUser(user, userToken);
-    //   print("userToken : $userToken");
-    //   AppNavigator.pushReplacement(context: context, widget: TabBarMainView());
-    // } else {
-    //   Dialogs.buildSnackBar(_logInModel?.errorModel?.message ?? Strings.kErrorMessage,
-    //       _scaffoldKey);
-    // }
   }
 }
