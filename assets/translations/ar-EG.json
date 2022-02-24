@@ -22,9 +22,9 @@
   "add": "اضافة",
   "quantity": "الكمية",
   "bill_details": "تفاصيل الفاتورة",
-  "price": "السعر : ",
-  "total": "الاجمالى : ",
-  "discount": "الخصم : ",
+  "price": "السعر",
+  "total": "الاجمالى",
+  "discount": "الخصم",
   "please_enter_received_Money": "برجاء ادخال المبلغ المحصل",
   "please_enter_quantity": "برجاء ادخال الكمية",
   "alert": "تنبيه",
@@ -46,6 +46,8 @@
   "registered_successfully":"تم التسجيل بنجاح",
   "register":"التسجيل",
   "unable_to_login":"غير قادر على تسجيل الدخول",
-  "NoAccount":"ليس لديك حساب"
+  "NoAccount":"ليس لديك حساب",
+  "home":"الصفحة الرئيسية",
+  "unauthorized_user":"مستخدم غير مرخص"
 
 }

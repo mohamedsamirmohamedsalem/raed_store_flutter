@@ -29,7 +29,11 @@ class EntryField extends StatelessWidget {
               errorText: isValid ? null : errorMessage,
               label: Text(
                 title ?? "",
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.black, fontSize: 20),
+              ),
+              focusColor: Colors.yellow,
+              focusedBorder: const OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.yellow, width: 2.0),
               ),
               border: const OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.grey, width: 1.0),

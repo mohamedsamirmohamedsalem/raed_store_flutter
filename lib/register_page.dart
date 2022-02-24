@@ -47,28 +47,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
           style: TextStyle(color: Colors.black),
         ).tr(),
       ),
-      body: Container(
+      body: SizedBox(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        color: Colors.white,
         child: Stack(
           children: [
             SingleChildScrollView(
-              child: Container(
-                color: Colors.white,
-                child: Column(
-                  children: [
-                    _registerHeader(),
-                    _registerTitle(),
-                    _registerEmail(),
-                    _registerPassword(),
-                    _registerConfirmPassword(),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    _registerButton(),
-                  ],
-                ),
+              child: Column(
+                children: [
+                  _registerHeader(),
+                  _registerTitle(),
+                  _registerEmail(),
+                  _registerPassword(),
+                  _registerConfirmPassword(),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  _registerButton(),
+                ],
               ),
             ),
             _isLoading

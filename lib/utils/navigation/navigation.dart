@@ -24,7 +24,7 @@ class Navigation {
   }
 
   Future<dynamic> navigateAndRemoveUntil(
-      {required String routeName, bool beCleared: false,Object? arg}) {
+      {required String routeName, bool beCleared = false,Object? arg}) {
     return navigation_Key.currentState!
         .pushNamedAndRemoveUntil(routeName, (_) => beCleared,arguments:arg);
   }

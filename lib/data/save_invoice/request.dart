@@ -11,14 +11,14 @@ class SaveInvoiceRequest {
 
   SaveInvoiceRequest(
       {this.clientId,
-        this.transTypeId,
-        this.totalInvoiceAmount,
-        this.paid,
-        this.discountValue,
-        this.net,
-        this.comment,
-        this.customrtInvoiceDiscount,
-        this.lstTransDetailsModel});
+      this.transTypeId,
+      this.totalInvoiceAmount,
+      this.paid,
+      this.discountValue,
+      this.net,
+      this.comment,
+      this.customrtInvoiceDiscount,
+      this.lstTransDetailsModel});
 
   SaveInvoiceRequest.fromJson(Map<String, dynamic> json) {
     clientId = json['ClientId'];
@@ -62,20 +62,22 @@ class LstTransDetailsModel {
   int? qtyInpackage;
   int? qty;
   String? itemName;
+  String? itemUnitName;
   double? amount;
   double? totalItemAmount;
   double? itemAmountBuy;
 
   LstTransDetailsModel(
       {this.itemId,
-        this.itemIdId,
-        this.itemUnitId,
-        this.qtyInpackage,
-        this.qty,
-        this.itemName,
-        this.amount,
-        this.totalItemAmount,
-        this.itemAmountBuy});
+      this.itemIdId,
+      this.itemUnitId,
+      this.qtyInpackage,
+      this.qty,
+      this.itemName,
+      this.itemUnitName,
+      this.amount,
+      this.totalItemAmount,
+      this.itemAmountBuy});
 
   LstTransDetailsModel.fromJson(Map<String, dynamic> json) {
     itemId = json['ItemId'];
@@ -83,6 +85,7 @@ class LstTransDetailsModel {
     itemUnitId = json['ItemUnitId'];
     qtyInpackage = json['QtyInpackage'];
     qty = json['Qty'];
+    itemUnitName = json['ItemUnitName'];
     amount = json['Amount'];
     totalItemAmount = json['TotalItemAmount'];
     itemAmountBuy = json['ItemAmountBuy'];
@@ -95,6 +98,7 @@ class LstTransDetailsModel {
     data['ItemUnitId'] = this.itemUnitId;
     data['QtyInpackage'] = this.qtyInpackage;
     data['Qty'] = this.qty;
+    data['ItemUnitName'] = this.itemUnitName;
     data['Amount'] = this.amount;
     data['TotalItemAmount'] = this.totalItemAmount;
     data['ItemAmountBuy'] = this.itemAmountBuy;

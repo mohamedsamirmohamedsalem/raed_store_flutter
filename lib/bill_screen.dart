@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:core';
 
 import 'package:easy_localization/easy_localization.dart';
@@ -23,7 +25,6 @@ class BillScreen extends StatefulWidget {
 class _BillScreenState extends State<BillScreen> {
   bool _isClientBalanceReceived = false;
   bool _isLoading = true;
-
   // Clients
   List<ClientResponse> _agentsList = [];
   ClientResponse? _selectedClientValue;
@@ -51,9 +52,9 @@ class _BillScreenState extends State<BillScreen> {
   void initState() {
     try {
       NetworkManager().getAgents().then((value) {
-        _agentsList = value;
+        _agentsList = value!;
         NetworkManager().getItemWithBalance("1").then((value) {
-          _itemsList = value;
+          _itemsList = value??[];
           _currentSelectedItem = _itemsList[0];
           setState(() {
             _isClientBalanceReceived = true;
@@ -76,7 +77,7 @@ class _BillScreenState extends State<BillScreen> {
         centerTitle: true,
         backgroundColor: Colors.yellow,
         actions: [
-          ElevatedButton(
+          TextButton(
             onPressed: (() => _onsaveBillPressed()),
             child: const Text(
               "save_print",
@@ -84,6 +85,7 @@ class _BillScreenState extends State<BillScreen> {
             ).tr(),
           )
         ],
+        iconTheme: const IconThemeData(color: Colors.black),
         title: Text(
           widget.billType == BillType.saleBill
               ? "sale_bill".tr()
@@ -97,12 +99,15 @@ class _BillScreenState extends State<BillScreen> {
                 SingleChildScrollView(
                   child: Column(
                     children: [
+                      const SizedBox(
+                        height: 10,
+                      ),
                       _buildTotalAmountRow(),
                       _buildClientArea(),
                       _buildItemsCard(),
                       _buildBillDetailsCard(),
                       _buildMoneyReceivedEntryField(),
-                      _buildSavePrintButton()
+                      //  _buildSavePrintButton()
                     ],
                   ),
                 ),
@@ -129,7 +134,7 @@ class _BillScreenState extends State<BillScreen> {
       width: MediaQuery.of(context).size.width,
       margin: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text("agent".tr()),
           const SizedBox(
@@ -142,6 +147,20 @@ class _BillScreenState extends State<BillScreen> {
                     color: Colors.yellow, style: BorderStyle.solid, width: 2.0),
               ),
               child: _buildDropdownButton()),
+          const SizedBox(
+            height: 10,
+          ),
+          _selectedClientValue != null
+              ? ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.yellow),
+                  ),
+                  onPressed: (() => _callBalanceAPI()),
+                  child: Text(
+                    'show_balance'.tr(),
+                    style: const TextStyle(color: Colors.black),
+                  ))
+              : Container(),
         ],
       ),
     );
@@ -195,6 +214,7 @@ class _BillScreenState extends State<BillScreen> {
                               itemId: _currentSelectedItem!.itemId!,
                               itemIdId: _currentSelectedItem!.itemIdId!,
                               qtyInpackage: _currentSelectedItem!.qtyInpackage!,
+                              itemUnitName: _currentSelectedItem!.itemUnitName,
                               qty: int.parse(
                                   _itemsQuantityController.value.text),
                               itemUnitId: _currentSelectedItem!.itemUnitId!,
@@ -260,51 +280,70 @@ class _BillScreenState extends State<BillScreen> {
                             height: 300,
                             child: ListView.builder(
                               itemCount: _billRecords.length,
-                              itemBuilder: (context, i) => Column(
-                                children: [
-                                  Container(
-                                    margin: const EdgeInsets.symmetric(
-                                        horizontal: 10),
-                                    height: 100,
-                                    child: Row(
-                                      children: [
-                                        Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                                _billRecords[i].itemName ?? ""),
-                                            Text("price".tr() +
-                                                _billRecords[i]
-                                                    .amount
-                                                    .toString()),
-                                            Text("total".tr() +
-                                                _billRecords[i]
-                                                    .totalItemAmount
-                                                    .toString())
-                                          ],
-                                        ),
-                                        Spacer(),
-                                        IconButton(
-                                            onPressed: () =>
-                                                _onCancelItemPressed(i),
-                                            icon: const Icon(
-                                              Icons.cancel,
-                                              color: Colors.red,
-                                            )),
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 2,
-                                    child: Container(
+                              itemBuilder: (context, i) {
+                                return Column(
+                                  children: [
+                                    Container(
                                       margin: const EdgeInsets.symmetric(
                                           horizontal: 10),
-                                      color: Colors.yellow,
+                                      height: 100,
+                                      child: Row(
+                                        children: [
+                                          Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                   Text(
+                                                    _billRecords[i].itemName ??
+                                                        "",
+                                                    style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                    const SizedBox(
+                                                    width: 20,
+                                                  ),
+                                                  Text(_billRecords[i]
+                                                          .itemUnitName ??
+                                                      ""),
+                                          
+                                                 
+                                                ],
+                                              ),
+                                              Text("price".tr() +' : '+
+                                                  _billRecords[i]
+                                                      .amount
+                                                      .toString()),
+                                              Text("total".tr() +' : '+
+                                                  _billRecords[i]
+                                                      .totalItemAmount
+                                                      .toString())
+                                            ],
+                                          ),
+                                          Spacer(),
+                                          IconButton(
+                                              onPressed: () =>
+                                                  _onCancelItemPressed(i),
+                                              icon: const Icon(
+                                                Icons.cancel,
+                                                color: Colors.red,
+                                              )),
+                                        ],
+                                      ),
                                     ),
-                                  )
-                                ],
-                              ),
+                                    SizedBox(
+                                      height: 2,
+                                      child: Container(
+                                        margin: const EdgeInsets.symmetric(
+                                            horizontal: 10),
+                                        color: Colors.yellow,
+                                      ),
+                                    )
+                                  ],
+                                );
+                              },
                             ),
                           ),
                           const SizedBox(
@@ -462,7 +501,7 @@ class _BillScreenState extends State<BillScreen> {
               child: Container(
                   margin: const EdgeInsets.symmetric(vertical: 5),
                   child: Text(
-                      "price".tr() + _currentSelectedItem!.amount!.toString())))
+                      "price".tr() +' : '+ _currentSelectedItem!.amount!.toString())))
         ],
       );
 
@@ -504,32 +543,61 @@ class _BillScreenState extends State<BillScreen> {
   Widget _buildTotalAmountRow() => Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Column(
-            children: [
-              Text(
-                "price".tr(),
-                style: const TextStyle(fontWeight: FontWeight.bold),
+          Card(
+            child: Container(
+              margin: EdgeInsets.all(10),
+              child: Column(
+                children: [
+                  Text(
+                    "price".tr()+' : ',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Text(totalAmount.toString()),
+                ],
               ),
-              Text(totalAmount.toString()),
-            ],
+            ),
           ),
-          Column(
-            children: [
-              Text(
-                "discount".tr(),
-                style: const TextStyle(fontWeight: FontWeight.bold),
+          Card(
+            elevation: 5,
+            child: Container(
+              margin: EdgeInsets.all(10),
+              child: Column(
+                children: [
+                  Text(
+                    "discount".tr(),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Text(totalDiscount.toString()),
+                ],
               ),
-              Text(totalDiscount.toString()),
-            ],
+            ),
           ),
-          Column(
-            children: [
-              Text(
-                "total".tr(),
-                style: const TextStyle(fontWeight: FontWeight.bold),
+          Card(
+            elevation: 5,
+            child: Container(
+              margin: EdgeInsets.all(10),
+              child: Column(
+                children: [
+                  Text(
+                    "total".tr(),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Text(totalAmountAfterDiscount.toString()),
+                ],
               ),
-              Text(totalAmountAfterDiscount.toString()),
-            ],
+            ),
           ),
         ],
       );
@@ -543,13 +611,30 @@ class _BillScreenState extends State<BillScreen> {
       if (saveInvoiceResponse!.transId == null) {
         throw Exception("cannot_find_transaction_number".tr());
       } else {
-        InvoiceResponse response =
+        InvoiceResponse? response =
             await NetworkManager().printInvoice(saveInvoiceResponse!.transId!);
         setState(() {
           _isLoading = true;
         });
-        PDFGeneratorHelper(response).generatePDF();
+        PDFGeneratorHelper(response!).generatePDF();
       }
+    } on Exception catch (_, e) {
+      _showErrorDialog(e);
+    }
+  }
+
+  Future<void> _callBalanceAPI() async {
+    try {
+      setState(() {
+        _isLoading = false;
+      });
+      var currentClientBalance = await NetworkManager()
+          .getClientBalance(_selectedClientValue!.accNumber!);
+      setState(() {
+        _isLoading = true;
+      });
+      _showErrorDialog(null,
+          errorMSG: '${"current_balance".tr()} : $currentClientBalance');
     } on Exception catch (_, e) {
       _showErrorDialog(e);
     }

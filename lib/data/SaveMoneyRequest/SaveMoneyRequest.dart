@@ -1,15 +1,15 @@
 class SaveMoneyRequest {
   String? clinetId;
   String? amount;
-  int? userId;
+  String? userName;
   String? notes;
 
-  SaveMoneyRequest({this.clinetId, this.amount, this.userId, this.notes});
+  SaveMoneyRequest({this.clinetId, this.amount, this.userName, this.notes});
 
   SaveMoneyRequest.fromJson(Map<String, dynamic> json) {
     clinetId = json['ClinetId'];
     amount = json['Amount'];
-    userId = json['UserId'];
+    userName = json['UserName'];
     notes = json['Notes'];
   }
 
@@ -17,7 +17,7 @@ class SaveMoneyRequest {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['ClinetId'] = this.clinetId;
     data['Amount'] = this.amount;
-    data['UserId'] = this.userId;
+    data['UserName'] = this.userName;
     data['Notes'] = this.notes;
     return data;
   }

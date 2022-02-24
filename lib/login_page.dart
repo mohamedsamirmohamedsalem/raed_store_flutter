@@ -97,7 +97,8 @@ class _LoginPageState extends State<LoginPage> {
       ],
     );
   }
-   Widget _loginHeader() {
+
+  Widget _loginHeader() {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
       width: 200,
@@ -106,7 +107,6 @@ class _LoginPageState extends State<LoginPage> {
           const Image(image: AssetImage('assets/images/raad_store_logo.jpeg')),
     );
   }
-
 
   Widget _skipButton() {
     return Center(
@@ -134,13 +134,13 @@ class _LoginPageState extends State<LoginPage> {
     return RoundedLoadingButton(
       height: 50,
       elevation: 3,
-      width: 180,//AppDimensions.width,
+      width: 180, //AppDimensions.width,
       borderRadius: 15,
       animateOnTap: true,
       color: kPrimaryColor,
       controller: _btnController,
       onPressed: _login,
-      child:  Text(
+      child: Text(
         "login".tr(),
         style: const TextStyle(fontSize: 20, color: Colors.black),
       ),
@@ -148,6 +148,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _login() async {
+    FocusManager.instance.primaryFocus?.unfocus();
     _btnController.start();
     if (emailController.value.text.isValidEmail() &&
         passwordController.value.text.isValidPasswordLength(6)) {
@@ -161,8 +162,8 @@ class _LoginPageState extends State<LoginPage> {
       if (loginResponse != null) {
         await saveLoginResponseToSharedPereferance(loginResponse);
         Navigation(navigationKey: Navigation.navigation_Key)
-            .navigateTo(routeName: RoutesNames.homeRoute);
-        // save login response to SB
+            .navigateAndRemoveUntil(
+                beCleared: true, routeName: RoutesNames.homeRoute);
       }
     } else {
       showDialogError();
@@ -172,16 +173,25 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void showDialogError() {
-     showDialog(
+    showDialog(
         context: context,
-        builder: (_) =>  AlertDialog(
+        
+        builder: (_) => AlertDialog(
+            actions: [
+                ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.yellow),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text("ok".tr()))
+              ],
               title: Text('alert'.tr()),
               content: Text('unable_to_login'.tr()),
             ));
   }
 
   Future<void> saveLoginResponseToSharedPereferance(loginResponse) async {
-     final prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
     prefs.setString("login_response", json.encode(loginResponse));
   }
 
@@ -218,7 +228,7 @@ class _LoginPageState extends State<LoginPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-         Text(
+        Text(
           "NoAccount".tr(),
           style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
         ),
@@ -228,7 +238,7 @@ class _LoginPageState extends State<LoginPage> {
         GestureDetector(
           onTap: () => Navigation(navigationKey: navigatorKey)
               .navigateTo(routeName: RoutesNames.registerRoute),
-          child:  Text(
+          child: Text(
             "register".tr(),
             style: const TextStyle(
               color: kPrimaryColor,
@@ -246,7 +256,7 @@ class _LoginPageState extends State<LoginPage> {
       children: <Widget>[
         EntryField(title: "email".tr(), controller: emailController),
         EntryField(
-            title: "Password".tr(),
+            title: "password".tr(),
             isPassword: true,
             controller: passwordController),
       ],

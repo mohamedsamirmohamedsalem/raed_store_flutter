@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:raed_store/data/SaveMoneyRequest/SaveMoneyRequest.dart';
+import 'package:raed_store/data/SaveMoneyRequest/save_received_money_response.dart';
 import 'package:raed_store/data/client/clientResponse.dart';
 import 'package:raed_store/network/network_manager.dart';
 import 'package:raed_store/widgets/entryField.dart';
@@ -18,7 +19,7 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
   bool isClientBalanceReceived = false;
   List<ClientResponse> agentsList = [];
   ClientResponse? selectedClientValue;
-  String currentClientBalance = "0";
+  String? currentClientBalance = "0";
   bool _isBalanceAvailable = false;
   bool _isloading = false;
 
@@ -28,7 +29,7 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
   void initState() {
     try {
       NetworkManager().getAgents().then((value) {
-        agentsList = value;
+        agentsList = value!;
         selectedClientValue = agentsList[0];
         setState(() {
           isClientBalanceReceived = true;
@@ -49,6 +50,7 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Colors.yellow,
+        iconTheme: const IconThemeData(color: Colors.black),
         title: const Text(
           "cash_collection_receipt",
           style: TextStyle(color: Colors.black),
@@ -105,15 +107,15 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
     );
   }
 
-  Widget _buildAppLogo() => Container(
-        alignment: Alignment.center,
-        margin: const EdgeInsets.symmetric(vertical: 50, horizontal: 10),
-        child: const Text(
-          "Raad_store",
-          style: TextStyle(fontSize: 20),
-        ).tr(),
-      );
-
+  Widget _buildAppLogo() {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+      width: 200,
+      height: 100,
+      child:
+          const Image(image: AssetImage('assets/images/raad_store_logo.jpeg')),
+    );
+  }
   // Widget _buildScreenTitle() => Container(
   //       alignment: Alignment.center,
   //       margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
@@ -150,7 +152,7 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
       items: agentsList.map((ClientResponse value) {
         return DropdownMenuItem<ClientResponse>(
           value: value,
-          child: Container(
+          child: SizedBox(
               width: MediaQuery.of(context).size.width / 2,
               child: Center(child: Text(value.accName!))),
         );
@@ -161,10 +163,6 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
           selectedClientValue = value;
           _isBalanceAvailable = false;
         });
-
-        if (kDebugMode) {
-          print(value);
-        }
       },
     );
   }
@@ -175,7 +173,7 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
           children: [
             Text("current_balance".tr()),
             const Spacer(),
-            Text(currentClientBalance)
+            Text(currentClientBalance??"")
           ],
         ),
       );
@@ -222,18 +220,33 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
 
   void _saveRecieveMoney() async {
     try {
-      String response = await NetworkManager().saveMoney(SaveMoneyRequest(
-          clinetId: selectedClientValue!.accNumber!,
-          amount: paidAmountController.value.text,
-          userId: 1,
+      setState(() {
+        _isloading = true;
+      });
+      SaveReceivedMoney? response = await NetworkManager().saveMoney(
+          SaveMoneyRequest(
+              clinetId: selectedClientValue!.accNumber!,
+              amount: paidAmountController.value.text,
+              userName: "",
+              notes: "Mobile"));
 
-          /// user id !!!!!
-          notes: "Mobile"));
+      setState(() {
+        _isloading = false;
+      });
       showDialog(
           context: context,
           builder: (_) => AlertDialog(
-                title:  Text('alert'.tr()),
-                content: Text(response),
+                actions: [
+                  ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all(Colors.yellow),
+                      ),
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text("ok".tr()))
+                ],
+                title: Text('alert'.tr()),
+                content: Text(response?.message ?? ""),
               ));
     } on Exception catch (_, e) {
       _showErrorDialog(e);
@@ -246,10 +259,13 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
         builder: (_) => AlertDialog(
               actions: [
                 ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.yellow),
+                    ),
                     onPressed: () => Navigator.of(context).pop(),
-                    child:  Text("ok".tr()))
+                    child: Text("ok".tr()))
               ],
-              title:  Text('alert'.tr()),
+              title: Text('alert'.tr()),
               content: Text(e.toString()),
             ));
   }
@@ -259,13 +275,13 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
         onPressed: () async {
           try {
             setState(() {
-              _isloading=true;
+              _isloading = true;
             });
             currentClientBalance = await NetworkManager()
                 .getClientBalance(selectedClientValue!.accNumber!);
             setState(() {
               _isBalanceAvailable = true;
-              _isloading=false;
+              _isloading = false;
             });
           } on Exception catch (_, e) {
             _showErrorDialog(e);

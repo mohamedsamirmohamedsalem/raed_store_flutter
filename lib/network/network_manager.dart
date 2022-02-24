@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:http/http.dart' as http;
 import 'package:raed_store/bill_screen.dart';
+import 'package:raed_store/constants/routes.dart';
 import 'package:raed_store/data/Invoice/invoice_response.dart';
 import 'package:raed_store/data/SaveMoneyRequest/SaveMoneyRequest.dart';
+import 'package:raed_store/data/SaveMoneyRequest/save_received_money_response.dart';
 import 'package:raed_store/data/client/clientResponse.dart';
 import 'package:raed_store/data/error_model.dart';
 import 'package:raed_store/data/get_items_by_id/response.dart';
@@ -13,10 +15,12 @@ import 'package:raed_store/data/register/request.dart';
 import 'package:raed_store/data/save_invoice/request.dart';
 import 'package:raed_store/data/save_invoice/response.dart';
 import 'package:raed_store/network/end_points.dart';
+import 'package:raed_store/utils/navigation/navigation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NetworkManager {
   static NetworkManager? singleton;
+  Function? on401UnAuthorizedUser;
 
   factory NetworkManager() {
     singleton = singleton ?? NetworkManager._internal();
@@ -44,7 +48,7 @@ class NetworkManager {
     return loginResponse;
   }
 
-  Future<String> getClientBalance(String accountNumber) async {
+  Future<String?> getClientBalance(String accountNumber) async {
     LoginResponse? loginResponse = await getLoginResponseFromSharedPreference();
     var response = await http.post(Uri.parse(NetworkHelper().getClientBalance),
         body: '{"AccNumber":"$accountNumber"}',
@@ -52,21 +56,31 @@ class NetworkManager {
           "Content-Type": "application/json",
           "Authorization": "Bearer ${loginResponse!.accessToken}"
         });
-    if (response.statusCode == 200) {
+    if (response.statusCode == 401) {
+      Navigation(navigationKey: Navigation.navigation_Key)
+          .navigateAndRemoveUntil(routeName: RoutesNames.homeRoute);
+      on401UnAuthorizedUser!();
+      return null;
+    } else if (response.statusCode == 200) {
       return response.body;
     } else {
       throw Exception("unable to get client balance");
     }
   }
 
-  Future<List<ClientResponse>> getAgents() async {
+  Future<List<ClientResponse>?> getAgents() async {
     LoginResponse? loginResponse = await getLoginResponseFromSharedPreference();
     var response =
         await http.post(Uri.parse(NetworkHelper().getClients), headers: {
       "Content-Type": "application/json",
       "Authorization": "Bearer ${loginResponse!.accessToken}"
     });
-    if (response.statusCode == 200) {
+    if (response.statusCode == 401) {
+      Navigation(navigationKey: Navigation.navigation_Key)
+          .navigateAndRemoveUntil(routeName: RoutesNames.homeRoute);
+      on401UnAuthorizedUser!();
+      return null;
+    } else if (response.statusCode == 200) {
       List<dynamic> list = json.decode(response.body);
       List<ClientResponse> clients = [];
       for (int i = 0; i < list.length; i++) {
@@ -78,7 +92,7 @@ class NetworkManager {
     }
   }
 
-  Future<SaveInvoiceResponse> saveInvoice(
+  Future<SaveInvoiceResponse?> saveInvoice(
       BillType billType, SaveInvoiceRequest saveInvoiceRequest) async {
     LoginResponse? loginResponse = await getLoginResponseFromSharedPreference();
     var response = await http.post(Uri.parse(NetworkHelper().saveInvoice),
@@ -87,14 +101,19 @@ class NetworkManager {
           "Content-Type": "application/json",
           "Authorization": "Bearer ${loginResponse!.accessToken!}"
         });
-    if (response.statusCode == 200) {
+    if (response.statusCode == 401) {
+      Navigation(navigationKey: Navigation.navigation_Key)
+          .navigateAndRemoveUntil(routeName: RoutesNames.homeRoute);
+      on401UnAuthorizedUser!();
+      return null;
+    } else if (response.statusCode == 200) {
       return SaveInvoiceResponse.fromJson(json.decode(response.body));
     } else {
       throw Exception("unable to Save Invoice");
     }
   }
 
-  Future<List<GetItemWithBalanceByIdResponse>> getItemWithBalance(
+  Future<List<GetItemWithBalanceByIdResponse>?> getItemWithBalance(
       String stockID) async {
     LoginResponse? loginResponse = await getLoginResponseFromSharedPreference();
     var response = await http.post(Uri.parse(NetworkHelper().getItemsByID),
@@ -103,7 +122,12 @@ class NetworkManager {
           "Content-Type": "application/json",
           "Authorization": "Bearer ${loginResponse!.accessToken!}"
         });
-    if (response.statusCode == 200) {
+    if (response.statusCode == 401) {
+      Navigation(navigationKey: Navigation.navigation_Key)
+          .navigateAndRemoveUntil(routeName: RoutesNames.homeRoute);
+      on401UnAuthorizedUser!();
+      return null;
+    } else if (response.statusCode == 200) {
       List<dynamic> list = json.decode(response.body);
       List<GetItemWithBalanceByIdResponse> items = [];
       for (int i = 0; i < list.length; i++) {
@@ -115,16 +139,23 @@ class NetworkManager {
     }
   }
 
-  Future<String> saveMoney(SaveMoneyRequest saveMoneyRequest) async {
+  Future<SaveReceivedMoney?> saveMoney(
+      SaveMoneyRequest saveMoneyRequest) async {
     LoginResponse? loginResponse = await getLoginResponseFromSharedPreference();
+    saveMoneyRequest.userName = loginResponse?.userName ?? "";
     var response = await http.post(Uri.parse(NetworkHelper().saveReceivedMoney),
         body: json.encode(saveMoneyRequest),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer ${loginResponse!.accessToken}"
         });
-    if (response.statusCode == 200) {
-      return response.body;
+    if (response.statusCode == 401) {
+      Navigation(navigationKey: Navigation.navigation_Key)
+          .navigateAndRemoveUntil(routeName: RoutesNames.homeRoute);
+      on401UnAuthorizedUser!();
+      return null;
+    } else if (response.statusCode == 200) {
+      return SaveReceivedMoney.fromJson(json.decode(response.body));
     } else {
       throw Exception("unable to Save Received Money");
     }
@@ -147,6 +178,7 @@ class NetworkManager {
       encoding: Encoding.getByName('utf-8'),
       body: {"grant_type": "password", "username": email, "password": password},
     );
+    print(response.body);
     if (response.statusCode == 200) {
       return LoginResponse.fromJson(json.decode(response.body));
     } else {
@@ -154,7 +186,7 @@ class NetworkManager {
     }
   }
 
-  Future<InvoiceResponse> printInvoice(String trasID) async {
+  Future<InvoiceResponse?> printInvoice(String trasID) async {
     LoginResponse? loginResponse = await getLoginResponseFromSharedPreference();
     var response = await http.post(Uri.parse(NetworkHelper().printInvoice),
         body: '{"TransId":"$trasID"}',
@@ -162,7 +194,12 @@ class NetworkManager {
           "Content-Type": "application/json",
           "Authorization": "Bearer ${loginResponse!.accessToken}"
         });
-    if (response.statusCode == 200) {
+    if (response.statusCode == 401) {
+      Navigation(navigationKey: Navigation.navigation_Key)
+          .navigateAndRemoveUntil(routeName: RoutesNames.homeRoute);
+      on401UnAuthorizedUser!();
+      return null;
+    } else if (response.statusCode == 200) {
       return InvoiceResponse.fromJson(json.decode(response.body));
     } else {
       throw Exception("unable to print Invoice");

@@ -30,7 +30,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
 
     case RoutesNames.homeRoute:
       return MaterialPageRoute(
-        builder: (context) => const HomeScreen(),
+        builder: (context) =>  HomeScreen(),
       );
 
     case RoutesNames.receiveMoneyRoute :

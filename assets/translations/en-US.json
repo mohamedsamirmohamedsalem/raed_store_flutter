@@ -22,9 +22,9 @@
   "add": "Add",
   "quantity": "Quantity",
   "bill_details": "Bill Details",
-  "price": "price : ",
-  "total": "Total : ",
-  "discount": "Discount : ",
+  "price": "price",
+  "total": "Total",
+  "discount": "Discount",
   "please_enter_received_Money": "please enter received Money",
   "please_enter_quantity": "please enter quantity",
   "alert": "Alert",
@@ -46,6 +46,8 @@
   "registered_successfully":"registered Successfully",
   "register":"Register",
   "unable_to_login":"Unable to Login",
-  "NoAccount":"NoAccount"
+  "NoAccount":"NoAccount",
+  "home":"home",
+  "unauthorized_user":"Unauthorized User"
   
 }
