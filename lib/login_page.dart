@@ -3,9 +3,7 @@ import 'dart:convert';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:raed_store/constants/app_dimensions.dart';
 import 'package:raed_store/network/network_manager.dart';
-import 'package:raed_store/tab_bar_view.dart';
 import 'package:raed_store/utils/navigation/navigation.dart';
 import 'package:raed_store/utils/string_extenstions.dart';
 import 'package:raed_store/widgets/entryField.dart';
@@ -14,7 +12,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'constants/colors.dart';
 import 'constants/routes.dart';
-import 'constants/text_styles.dart';
 import 'main.dart';
 
 class LoginPage extends StatefulWidget {
@@ -71,8 +68,8 @@ class _LoginPageState extends State<LoginPage> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         _loginHeader(),
-        Text("welcome".tr(),
-            style: kBigBlackTextStyle.copyWith(fontWeight: FontWeight.w500)),
+        // Text("welcome".tr(),
+        //     style: kBigBlackTextStyle.copyWith(fontWeight: FontWeight.w500)),
         const SizedBox(height: 20),
         _emailPasswordWidget(),
         const SizedBox(height: 10),
@@ -137,7 +134,7 @@ class _LoginPageState extends State<LoginPage> {
       width: 180, //AppDimensions.width,
       borderRadius: 15,
       animateOnTap: true,
-      color: kPrimaryColor,
+      color: Colors.yellow,
       controller: _btnController,
       onPressed: _login,
       child: Text(
@@ -175,9 +172,8 @@ class _LoginPageState extends State<LoginPage> {
   void showDialogError() {
     showDialog(
         context: context,
-        
         builder: (_) => AlertDialog(
-            actions: [
+              actions: [
                 ElevatedButton(
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(Colors.yellow),
@@ -228,25 +224,40 @@ class _LoginPageState extends State<LoginPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        Text(
-          "NoAccount".tr(),
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-        ),
+        // Text(
+        //   "NoAccount".tr(),
+        //   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+        // ),
         const SizedBox(
           width: 10,
         ),
-        GestureDetector(
-          onTap: () => Navigation(navigationKey: navigatorKey)
+        ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all(Colors.yellow),
+          ),
+          onPressed: () => Navigation(navigationKey: navigatorKey)
               .navigateTo(routeName: RoutesNames.registerRoute),
           child: Text(
             "register".tr(),
             style: const TextStyle(
-              color: kPrimaryColor,
+              color: Colors.black,
               fontSize: 20,
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
+      //   GestureDetector(
+      //     onTap: () => Navigation(navigationKey: navigatorKey)
+      //         .navigateTo(routeName: RoutesNames.registerRoute),
+      //     child: Text(
+      //       "register".tr(),
+      //       style: const TextStyle(
+      //         color: kPrimaryColor,
+      //         fontSize: 20,
+      //         fontWeight: FontWeight.w600,
+      //       ),
+      //     ),
+      //   ),
       ],
     );
   }

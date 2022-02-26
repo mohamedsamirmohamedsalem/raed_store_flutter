@@ -20,7 +20,6 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
   List<ClientResponse> agentsList = [];
   ClientResponse? selectedClientValue;
   String? currentClientBalance = "0";
-  bool _isBalanceAvailable = false;
   bool _isloading = false;
 
   TextEditingController paidAmountController = TextEditingController();
@@ -66,10 +65,9 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
                       children: [
                         _buildAppLogo(),
                         _buildAgentDropDownList(),
-                        _buildShowClientBalance(),
-                        _isBalanceAvailable
-                            ? _buildCurrentBalanceRow()
-                            : Container(),
+                        // _isBalanceAvailable
+                        //     ? _buildCurrentBalanceRow()
+                        //     : Container(),
                         _buildPaidMoneyDataInputField(),
                         _buildSaveButton()
                       ],
@@ -127,20 +125,19 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
       alignment: Alignment.center,
       width: MediaQuery.of(context).size.width,
       margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("agent".tr()),
-          const SizedBox(
-            height: 10,
-          ),
           Container(
+              margin: const EdgeInsets.symmetric(horizontal: 5),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15.0),
                 border: Border.all(
                     color: Colors.yellow, style: BorderStyle.solid, width: 2.0),
               ),
               child: _buildDropdownButton()),
+          const Spacer(),
+          _buildShowClientBalance(),
         ],
       ),
     );
@@ -159,9 +156,9 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
       }).toList(),
       value: selectedClientValue,
       onChanged: (value) async {
+        paidAmountController.clear();
         setState(() {
           selectedClientValue = value;
-          _isBalanceAvailable = false;
         });
       },
     );
@@ -173,7 +170,7 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
           children: [
             Text("current_balance".tr()),
             const Spacer(),
-            Text(currentClientBalance??"")
+            Text(currentClientBalance ?? "")
           ],
         ),
       );
@@ -197,9 +194,9 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
           keyboardType: TextInputType.number,
           controller: paidAmountController,
 
-          inputFormatters: <TextInputFormatter>[
-            FilteringTextInputFormatter.digitsOnly
-          ], // Only numbers can be entered
+          // inputFormatters: <TextInputFormatter>[
+          //   FilteringTextInputFormatter.digitsOnly
+          // ], // Only numbers can be entered
         ),
       );
 
@@ -220,41 +217,33 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
 
   void _saveRecieveMoney() async {
     try {
-      setState(() {
-        _isloading = true;
-      });
-      SaveReceivedMoney? response = await NetworkManager().saveMoney(
-          SaveMoneyRequest(
-              clinetId: selectedClientValue!.accNumber!,
-              amount: paidAmountController.value.text,
-              userName: "",
-              notes: "Mobile"));
-
-      setState(() {
-        _isloading = false;
-      });
-      showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-                actions: [
-                  ElevatedButton(
-                      style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all(Colors.yellow),
-                      ),
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Text("ok".tr()))
-                ],
-                title: Text('alert'.tr()),
-                content: Text(response?.message ?? ""),
-              ));
+      if (paidAmountController.value.text.isNotEmpty &&
+          double.parse(paidAmountController.value.text) != 0) {
+        setState(() {
+          _isloading = true;
+        });
+        SaveReceivedMoney? response = await NetworkManager().saveMoney(
+            SaveMoneyRequest(
+                clinetId: selectedClientValue!.accNumber!,
+                amount: paidAmountController.value.text,
+                userName: "",
+                notes: "Mobile"));
+        if (response?.satatus != "NotSaved") paidAmountController.clear();
+        setState(() {
+          _isloading = false;
+        });
+        _showErrorDialog(null, errorMSG: response?.message ?? "");
+      } else {
+        _showErrorDialog(null, errorMSG: "please_enter_quantity".tr());
+      }
     } on Exception catch (_, e) {
       _showErrorDialog(e);
     }
   }
 
-  void _showErrorDialog(StackTrace e) {
-    var dialog = showDialog(
+  void _showErrorDialog(StackTrace? e,
+      {String errorMSG = "", Function? onPostivePressed}) {
+    showDialog(
         context: context,
         builder: (_) => AlertDialog(
               actions: [
@@ -262,11 +251,13 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(Colors.yellow),
                     ),
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text("ok".tr()))
+                    onPressed: () => onPostivePressed == null
+                        ? Navigator.of(context).pop()
+                        : onPostivePressed(),
+                    child: const Text("ok").tr())
               ],
               title: Text('alert'.tr()),
-              content: Text(e.toString()),
+              content: Text(e != null ? e.toString() : errorMSG),
             ));
   }
 
@@ -280,15 +271,17 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
             currentClientBalance = await NetworkManager()
                 .getClientBalance(selectedClientValue!.accNumber!);
             setState(() {
-              _isBalanceAvailable = true;
               _isloading = false;
             });
+            _showErrorDialog(null,
+                errorMSG: '${"current_balance".tr()} : $currentClientBalance');
           } on Exception catch (_, e) {
             _showErrorDialog(e);
           }
         },
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(Colors.yellow),
+          padding: MaterialStateProperty.all<EdgeInsetsGeometry>(const EdgeInsets.symmetric(horizontal: 2,vertical: 5))
         ),
         child: const Text(
           "show_balance",

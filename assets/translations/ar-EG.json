@@ -27,7 +27,7 @@
   "discount": "الخصم",
   "please_enter_received_Money": "برجاء ادخال المبلغ المحصل",
   "please_enter_quantity": "برجاء ادخال الكمية",
-  "alert": "تنبيه",
+  "alert": "الرائد ستور",
   "ok": "نعم",
   "show_balance": "اظهار الرصيد",
   "cannot_find_transaction_number":"لا يمكن الحصول على رقم العملية",
@@ -45,9 +45,14 @@
   "unable_to_register":"غير قادر على التسجيل ",
   "registered_successfully":"تم التسجيل بنجاح",
   "register":"التسجيل",
-  "unable_to_login":"غير قادر على تسجيل الدخول",
+  "unable_to_login":"برجاء التاكد من إدخال اسم المستخدم وكلمه المرور بشكل سليم",
   "NoAccount":"ليس لديك حساب",
   "home":"الصفحة الرئيسية",
-  "unauthorized_user":"مستخدم غير مرخص"
+  "unauthorized_user":" انتظار تفعيل الاداره",
+  "bill_total":"اجمالى الفاتورة",
+  "net":"الصافى",
+  "total_items":"اجمالى الاصناف",
+  "total_quantity" :"اجمالى القطع",
+  "item_already_added":"غير مسموح بتكرار الصنف"
 
 }

@@ -44,18 +44,20 @@ class HomeScreen extends StatelessWidget {
                         children: [
                           Expanded(
                             child: GestureDetector(
-                              onTap: () => _navigateToReceiveMoney(),
+                              onTap: () =>
+                                  {_navigateToBillScreen(BillType.saleBill)},
                               child: _buildnavigationCard(
-                                  "receive_money".tr(), Icons.money),
+                                  "sale_bill".tr(), Icons.list),
                             ),
                           ),
                           Expanded(
-                              child: GestureDetector(
-                            onTap: () =>
-                                {_navigateToBillScreen(BillType.saleBill)},
-                            child: _buildnavigationCard(
-                                "sale_bill".tr(), Icons.list),
-                          ))
+                            child: GestureDetector(
+                              onTap: () =>
+                                  {_navigateToBillScreen(BillType.returnBill)},
+                              child: _buildnavigationCard("return_bill".tr(),
+                                  Icons.settings_backup_restore),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -66,22 +68,36 @@ class HomeScreen extends StatelessWidget {
                         children: [
                           Expanded(
                             child: GestureDetector(
-                              onTap: () =>
-                                  {_navigateToBillScreen(BillType.returnBill)},
-                              child: _buildnavigationCard("return_bill".tr(),
-                                  Icons.settings_backup_restore),
+                              onTap: () => _navigateToReceiveMoney(),
+                              child: _buildnavigationCard(
+                                  "receive_money".tr(), Icons.money),
                             ),
                           ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
                           Expanded(
                             child: GestureDetector(
                               onTap: () => {},
                               child: _buildnavigationCard(
-                                  "Card 4", Icons.card_giftcard),
+                                  "الفواتير", Icons.card_giftcard),
+                            ),
+                          ),
+                            Expanded(
+                            child: GestureDetector(
+                              onTap: () => {},
+                              child: _buildnavigationCard(
+                                  "الايصالات", Icons.card_giftcard),
                             ),
                           )
                         ],
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),

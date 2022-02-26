@@ -2,7 +2,8 @@
 
 import 'dart:core';
 
-import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart' as localized;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:raed_store/data/Invoice/invoice_response.dart';
@@ -33,6 +34,7 @@ class _BillScreenState extends State<BillScreen> {
   List<GetItemWithBalanceByIdResponse> _itemsList = [];
   GetItemWithBalanceByIdResponse? _currentSelectedItem;
   TextEditingController _itemsQuantityController = TextEditingController();
+  var focusNode = FocusNode();
 
   // bill Details
   List<invoiceRequest.LstTransDetailsModel> _billRecords = [];
@@ -54,7 +56,7 @@ class _BillScreenState extends State<BillScreen> {
       NetworkManager().getAgents().then((value) {
         _agentsList = value!;
         NetworkManager().getItemWithBalance("1").then((value) {
-          _itemsList = value??[];
+          _itemsList = value ?? [];
           _currentSelectedItem = _itemsList[0];
           setState(() {
             _isClientBalanceReceived = true;
@@ -78,6 +80,20 @@ class _BillScreenState extends State<BillScreen> {
         backgroundColor: Colors.yellow,
         actions: [
           TextButton(
+            style: ButtonStyle(
+              padding: MaterialStateProperty.all<EdgeInsets>(
+                  const EdgeInsets.all(5)),
+              foregroundColor: MaterialStateProperty.all<Color>(Colors.yellow),
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                  side: const BorderSide(
+                    width: 2.0,
+                    color: Color.fromARGB(255, 126, 126, 35),
+                  ),
+                ),
+              ),
+            ),
             onPressed: (() => _onsaveBillPressed()),
             child: const Text(
               "save_print",
@@ -103,10 +119,13 @@ class _BillScreenState extends State<BillScreen> {
                         height: 10,
                       ),
                       _buildTotalAmountRow(),
+                      const SizedBox(
+                        height: 10,
+                      ),
                       _buildClientArea(),
                       _buildItemsCard(),
                       _buildBillDetailsCard(),
-                      _buildMoneyReceivedEntryField(),
+                      _buildTotals(),
                       //  _buildSavePrintButton()
                     ],
                   ),
@@ -132,14 +151,14 @@ class _BillScreenState extends State<BillScreen> {
     return Container(
       alignment: Alignment.center,
       width: MediaQuery.of(context).size.width,
-      margin: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-      child: Column(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text("agent".tr()),
-          const SizedBox(
-            height: 10,
-          ),
+          // Text("agent".tr()),
+          // const SizedBox(
+          //   height: 10,
+          // ),
           Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15.0),
@@ -147,13 +166,12 @@ class _BillScreenState extends State<BillScreen> {
                     color: Colors.yellow, style: BorderStyle.solid, width: 2.0),
               ),
               child: _buildDropdownButton()),
-          const SizedBox(
-            height: 10,
-          ),
+          Spacer(),
           _selectedClientValue != null
               ? ElevatedButton(
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all(Colors.yellow),
+                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(const EdgeInsets.all(0))
                   ),
                   onPressed: (() => _callBalanceAPI()),
                   child: Text(
@@ -201,53 +219,56 @@ class _BillScreenState extends State<BillScreen> {
               children: [
                 _buildItemsDropDown(),
                 _buildQuantityEntryField(),
-                Container(
-                  margin: const EdgeInsets.symmetric(vertical: 10),
-                  child: ElevatedButton(
-                      style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all(Colors.yellow),
-                      ),
-                      onPressed: () {
-                        if (_itemsQuantityController.value.text.isNotEmpty) {
-                          _billRecords.add(invoiceRequest.LstTransDetailsModel(
-                              itemId: _currentSelectedItem!.itemId!,
-                              itemIdId: _currentSelectedItem!.itemIdId!,
-                              qtyInpackage: _currentSelectedItem!.qtyInpackage!,
-                              itemUnitName: _currentSelectedItem!.itemUnitName,
-                              qty: int.parse(
-                                  _itemsQuantityController.value.text),
-                              itemUnitId: _currentSelectedItem!.itemUnitId!,
-                              amount: _currentSelectedItem!.amount!,
-                              totalItemAmount: int.parse(
-                                      _itemsQuantityController.value.text) *
-                                  _currentSelectedItem!.amount!,
-                              itemName: _currentSelectedItem!.itemName!,
-                              itemAmountBuy:
-                                  _currentSelectedItem!.itemAmountBuy));
-                          totalAmount = 0;
-                          for (var e in _billRecords) {
-                            totalAmount += e.totalItemAmount ?? 0;
-                          }
-                          totalDiscount = totalAmount *
-                              _selectedClientValue!.customrtInvoiceDiscount!;
-                          totalAmountAfterDiscount =
-                              totalAmount - totalDiscount;
-                          _itemsQuantityController = TextEditingController();
-                          setState(() {});
-                        } else {
-                          _showErrorDialog(null,
-                              errorMSG: "please_enter_quantity".tr());
-                        }
-                      },
-                      child: const Text(
-                        "add",
-                        style: TextStyle(color: Colors.black),
-                      ).tr()),
-                )
               ],
             ),
           );
+  }
+
+  Container _buildAddItemButton() {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      child: ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all(Colors.yellow),
+          ),
+          onPressed: () {
+            if (_isBillListHasSelectedItem()) {
+              _showErrorDialog(null, errorMSG: "item_already_added".tr());
+              return;
+            } else if (_itemsQuantityController.value.text.isNotEmpty &&
+                double.parse(_itemsQuantityController.value.text) != 0) {
+              _billRecords.add(invoiceRequest.LstTransDetailsModel(
+                  itemId: _currentSelectedItem!.itemId!,
+                  itemIdId: _currentSelectedItem!.itemIdId!,
+                  qtyInpackage: _currentSelectedItem!.qtyInpackage!,
+                  itemUnitName: _currentSelectedItem!.itemUnitName,
+                  qty: double.parse(_itemsQuantityController.value.text),
+                  itemUnitId: _currentSelectedItem!.itemUnitId!,
+                  amount: _currentSelectedItem!.amount!,
+                  totalItemAmount:
+                      double.parse(_itemsQuantityController.value.text) *
+                          _currentSelectedItem!.amount!,
+                  itemName: _currentSelectedItem!.itemName!,
+                  itemAmountBuy: _currentSelectedItem!.itemAmountBuy));
+              totalAmount = 0;
+              for (var e in _billRecords) {
+                totalAmount += e.totalItemAmount ?? 0;
+              }
+              totalDiscount = totalAmount *
+                  (_selectedClientValue?.customrtInvoiceDiscount ?? 0.0) /
+                  100;
+              totalAmountAfterDiscount = totalAmount - totalDiscount;
+              _itemsQuantityController.clear();
+              setState(() {});
+            } else {
+              _showErrorDialog(null, errorMSG: "please_enter_quantity".tr());
+            }
+          },
+          child: const Text(
+            "add",
+            style: TextStyle(color: Colors.black),
+          ).tr()),
+    );
   }
 
   Widget _buildBillDetailsCard() => Column(
@@ -281,97 +302,105 @@ class _BillScreenState extends State<BillScreen> {
                             child: ListView.builder(
                               itemCount: _billRecords.length,
                               itemBuilder: (context, i) {
-                                return Column(
-                                  children: [
-                                    Container(
-                                      margin: const EdgeInsets.symmetric(
-                                          horizontal: 10),
-                                      height: 100,
-                                      child: Row(
-                                        children: [
-                                          Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                   Text(
-                                                    _billRecords[i].itemName ??
-                                                        "",
-                                                    style: const TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                    const SizedBox(
-                                                    width: 20,
-                                                  ),
-                                                  Text(_billRecords[i]
-                                                          .itemUnitName ??
-                                                      ""),
-                                          
-                                                 
-                                                ],
-                                              ),
-                                              Text("price".tr() +' : '+
-                                                  _billRecords[i]
-                                                      .amount
-                                                      .toString()),
-                                              Text("total".tr() +' : '+
-                                                  _billRecords[i]
-                                                      .totalItemAmount
-                                                      .toString())
-                                            ],
-                                          ),
-                                          Spacer(),
-                                          IconButton(
-                                              onPressed: () =>
-                                                  _onCancelItemPressed(i),
-                                              icon: const Icon(
-                                                Icons.cancel,
-                                                color: Colors.red,
-                                              )),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 2,
-                                      child: Container(
-                                        margin: const EdgeInsets.symmetric(
-                                            horizontal: 10),
-                                        color: Colors.yellow,
-                                      ),
-                                    )
-                                  ],
-                                );
+                                return _buildItemRecondInList(i);
                               },
                             ),
                           ),
-                          const SizedBox(
-                            height: 2,
-                          ),
-                          // Text("price".tr() + totalAmount.toString()),
-                          // const SizedBox(
-                          //   height: 2,
-                          // ),
-                          // Text("discount".tr() + totalDiscount.toString()),
-                          // const SizedBox(
-                          //   height: 2,
-                          // ),
-                          // Text("total".tr() +
-                          //         totalAmountAfterDiscount.toString() ??
-                          //     "")
                         ],
                       ),
                     )),
         ],
       );
 
+  Widget _buildItemRecondInList(int index) {
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 10),
+            height: 100,
+            child: Row(
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width-100,
+                      child: SizedBox(
+                         width: MediaQuery.of(context).size.width-70,
+                        child: Row(
+                          children: [
+                            Text(_billRecords[index].itemUnitName ?? ""),
+                            const SizedBox(
+                              width: 20,
+                            ),
+                            SizedBox(width: 150,
+                              child: Text(
+                                _billRecords[index].itemName ?? "",maxLines: 2,
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            const Spacer(),
+                            IconButton(
+                              onPressed: () => _onCancelItemPressed(index),
+                              icon: const Icon(
+                                Icons.cancel,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10,),
+                    SizedBox(
+                        width: MediaQuery.of(context).size.width-70,
+                      child: Row(
+                        children: [
+                          Text("quantity".tr() +
+                              ' : ' +
+                              (_billRecords[index].qty ?? 0)
+                                  .toStringAsFixed(2)),
+                                  Spacer(),
+                          Text("price".tr() +
+                              ' : ' +
+                              (_billRecords[index].amount ?? 0)
+                                  .toStringAsFixed(2)),
+                                  Spacer(),
+                          Text("total".tr() +
+                              ' : ' +
+                              (_billRecords[index].totalItemAmount ?? 0)
+                                  .toStringAsFixed(2))
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 2,
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 10),
+              color: Colors.yellow,
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   Widget _buildMoneyReceivedEntryField() => Container(
-        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+        width: 150,
+        // height: 60,
         child: TextField(
           cursorColor: Colors.yellow,
           textAlign: TextAlign.center,
           decoration: InputDecoration(
+            
             labelText: "paid_amount".tr(),
             focusColor: Colors.yellow,
             focusedBorder: const OutlineInputBorder(
@@ -383,9 +412,9 @@ class _BillScreenState extends State<BillScreen> {
           ),
           keyboardType: TextInputType.number,
           controller: _receivedMoneyController,
-          inputFormatters: <TextInputFormatter>[
-            FilteringTextInputFormatter.digitsOnly
-          ], // Only numbers can be entered
+          // inputFormatters: <TextInputFormatter>[
+          //   FilteringTextInputFormatter.digitsOnly
+          // ], // Only numbers can be entered
         ),
       );
 
@@ -406,7 +435,8 @@ class _BillScreenState extends State<BillScreen> {
       );
 
   Future<void> _onsaveBillPressed() async {
-    if (_receivedMoneyController.value.text.isNotEmpty) {
+    if (_receivedMoneyController.value.text.isNotEmpty &&
+        double.parse(_receivedMoneyController.value.text) != 0) {
       setState(() {
         _isLoading = false;
       });
@@ -424,12 +454,14 @@ class _BillScreenState extends State<BillScreen> {
                     _selectedClientValue?.customrtInvoiceDiscount ?? 0.0,
                 clientId: int.parse(_selectedClientValue?.accNumber ?? "0"),
                 totalInvoiceAmount: totalAmountAfterDiscount.toString()));
+        if (saveInvoiceResponse?.satatus != "NotSaved") {
+          _resetCells();
+        }
         _showErrorDialog(
           null,
           errorMSG: saveInvoiceResponse!.message.toString(),
           // onPostivePressed: _printInvoice,
         );
-        _resetCells();
       } on Exception catch (_, e) {
         _isClientBalanceReceived = true;
         _showErrorDialog(e);
@@ -440,12 +472,14 @@ class _BillScreenState extends State<BillScreen> {
   }
 
   void _resetCells() {
-    _isLoading = true;
-    totalAmountAfterDiscount = 0;
-    totalAmount = 0;
-    totalDiscount = 0;
-    _billRecords = [];
-    _receivedMoneyController = TextEditingController();
+    setState(() {
+      _isLoading = true;
+      totalAmountAfterDiscount = 0;
+      totalAmount = 0;
+      totalDiscount = 0;
+      _billRecords = [];
+      _receivedMoneyController.clear();
+    });
   }
 
   void _showErrorDialog(StackTrace? e,
@@ -489,6 +523,7 @@ class _BillScreenState extends State<BillScreen> {
                 }).toList(),
                 value: _currentSelectedItem,
                 onChanged: (value) async {
+                  FocusScope.of(context).requestFocus(focusNode);
                   setState(() {
                     _currentSelectedItem = value;
                   });
@@ -500,107 +535,105 @@ class _BillScreenState extends State<BillScreen> {
           Expanded(
               child: Container(
                   margin: const EdgeInsets.symmetric(vertical: 5),
-                  child: Text(
-                      "price".tr() +' : '+ _currentSelectedItem!.amount!.toString())))
+                  child: Text("price".tr() +
+                      ' : ' +
+                      (_currentSelectedItem?.amount ?? 0)
+                          .toStringAsFixed(2))))
         ],
       );
 
   Widget _buildQuantityEntryField() => Container(
         margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-        child: TextField(
-          textAlign: TextAlign.center,
+        child: Row(
+          children: [
+            SizedBox(
+              width: 200,
+              child: TextField(
+                textAlign: TextAlign.center,
+                focusNode: focusNode,
+                cursorColor: Colors.yellow,
+                decoration: InputDecoration(
+                  labelText: "quantity".tr(),
+                  labelStyle: const TextStyle(color: Colors.black),
+                  focusedBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.yellow, width: 2.0)),
+                  enabledBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.yellow, width: 2.0),
+                  ),
+                ),
+                keyboardType: TextInputType.number,
+                controller: _itemsQuantityController,
 
-          cursorColor: Colors.yellow,
-          decoration: InputDecoration(
-            labelText: "quantity".tr(),
-            labelStyle: const TextStyle(color: Colors.black),
-            focusedBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.yellow, width: 2.0)),
-            enabledBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.yellow, width: 2.0),
+                // inputFormatters: <TextInputFormatter>[
+                //   FilteringTextInputFormatter.digitsOnly
+                // ], // Only numbers can be entered
+              ),
             ),
-          ),
-          keyboardType: TextInputType.number,
-          controller: _itemsQuantityController,
-
-          inputFormatters: <TextInputFormatter>[
-            FilteringTextInputFormatter.digitsOnly
-          ], // Only numbers can be entered
+            const Spacer(),
+            _buildAddItemButton()
+          ],
         ),
       );
 
   void _onCancelItemPressed(int index) {
     final itemToRemove = _billRecords[index];
     totalAmount -= itemToRemove.totalItemAmount!;
-    totalDiscount =
-        totalAmount * _selectedClientValue!.customrtInvoiceDiscount!;
+    totalDiscount = totalAmount *
+        (_selectedClientValue?.customrtInvoiceDiscount ?? 0.0) /
+        100;
     totalAmountAfterDiscount = totalAmount - totalDiscount;
     setState(() {
       _billRecords.removeAt(index);
     });
   }
 
-  Widget _buildTotalAmountRow() => Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Card(
-            child: Container(
-              margin: EdgeInsets.all(10),
-              child: Column(
-                children: [
-                  Text(
-                    "price".tr()+' : ',
+  Widget _buildTotalAmountRow() => Container(
+    height: 110,
+    child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Column(
+              children: [
+                Container(
+                  margin: const EdgeInsets.all(10),
+                  child: Text(
+                    "bill_total".tr() +
+                        ' : ' +
+                        totalAmount.toStringAsFixed(2),
                     style: const TextStyle(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  Text(totalAmount.toString()),
-                ],
-              ),
-            ),
-          ),
-          Card(
-            elevation: 5,
-            child: Container(
-              margin: EdgeInsets.all(10),
-              child: Column(
-                children: [
-                  Text(
-                    "discount".tr(),
+                ),
+                const Spacer(),
+                Container(
+                  margin: const EdgeInsets.all(10),
+                  child: Text(
+                    "discount".tr() + " : " + totalDiscount.toStringAsFixed(2),
                     style: const TextStyle(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  Text(totalDiscount.toString()),
-                ],
-              ),
+                ),
+              ],
             ),
-          ),
-          Card(
-            elevation: 5,
-            child: Container(
-              margin: EdgeInsets.all(10),
-              child: Column(
-                children: [
-                  Text(
-                    "total".tr(),
+            Column(
+              children: [
+                Container(
+                  margin: const EdgeInsets.all(10),
+                  child: Text(
+                    "net".tr() +
+                        " : " +
+                        totalAmountAfterDiscount.toStringAsFixed(2),
                     style: const TextStyle(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  Text(totalAmountAfterDiscount.toString()),
-                ],
-              ),
+                ),
+                const Spacer(),
+                _buildMoneyReceivedEntryField(),
+              ],
             ),
-          ),
-        ],
-      );
+          ],
+        ),
+  );
 
   void _printInvoice() async {
     Navigator.of(context).pop();
@@ -638,6 +671,46 @@ class _BillScreenState extends State<BillScreen> {
     } on Exception catch (_, e) {
       _showErrorDialog(e);
     }
+  }
+
+  Widget _buildTotals() => Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Row(
+        children: [
+          Text("total_items".tr() + " : " + _getTotalItems()),
+          const Spacer(),
+          Text("total_quantity".tr() + " : " + _getTotalQuantity()),
+        ],
+      ));
+
+  String _getTotalItems() {
+    int counter = 0;
+    for (var itemElement in _itemsList) {
+      for (var billElement in _billRecords) {
+        if (itemElement.itemName == billElement.itemName) {
+          counter++;
+          break;
+        }
+      }
+    }
+    return counter.toString();
+  }
+
+  String _getTotalQuantity() {
+    double quantity = 0;
+    for (var element in _billRecords) {
+      quantity += element.qty ?? 0.0;
+    }
+    return quantity.toStringAsFixed(2);
+  }
+
+  bool _isBillListHasSelectedItem() {
+    for (var element in _billRecords) {
+      if (element.itemIdId == (_currentSelectedItem?.itemIdId ?? -1)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 

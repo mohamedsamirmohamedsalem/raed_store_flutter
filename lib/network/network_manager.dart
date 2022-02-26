@@ -122,6 +122,7 @@ class NetworkManager {
           "Content-Type": "application/json",
           "Authorization": "Bearer ${loginResponse!.accessToken!}"
         });
+    print(response.body);
     if (response.statusCode == 401) {
       Navigation(navigationKey: Navigation.navigation_Key)
           .navigateAndRemoveUntil(routeName: RoutesNames.homeRoute);

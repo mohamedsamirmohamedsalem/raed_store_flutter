@@ -60,7 +60,7 @@ class LstTransDetailsModel {
   int? itemIdId;
   int? itemUnitId;
   int? qtyInpackage;
-  int? qty;
+  double? qty;
   String? itemName;
   String? itemUnitName;
   double? amount;
