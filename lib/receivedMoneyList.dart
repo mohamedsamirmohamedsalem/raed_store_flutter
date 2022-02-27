@@ -70,9 +70,13 @@ class _ReceiveMoneyHistoryState extends State<ReceiveMoneyHistory> {
             title: Column(
               children: [
                 _buildRow_1(index),
+                _buildSplit(),
                 _buildRow_2(index),
+                _buildSplit(),
                 _buildRow_3(index),
+                _buildSplit(),
                 _buildRow_4(index),
+                _buildSplit(),
                 _buildRow_5(index),
               ],
             ),
@@ -173,4 +177,8 @@ class _ReceiveMoneyHistoryState extends State<ReceiveMoneyHistory> {
               content: Text(e != null ? e.toString() : errorMSG),
             ));
   }
+
+  Widget _buildSplit() => const SizedBox(
+        height: 1,
+      );
 }

@@ -62,6 +62,6 @@
   "trans_num":"رقم الايصال",
   "invoice_history":"الفواتير",
   "amount":"المبلغ",
-  "receipts":"الايصالات"
-
+  "receipts":"الايصالات",
+  "balance":"الرصيد"
 }

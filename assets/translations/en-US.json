@@ -62,6 +62,7 @@
   "trans_num":"Transaction Num",
   "invoice_history":"Invoices",
   "amount":"Amount",
-  "receipts":"Receipts"
+  "receipts":"Receipts",
+  "balance":"balance"
   
 }

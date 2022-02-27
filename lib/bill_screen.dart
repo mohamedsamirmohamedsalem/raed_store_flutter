@@ -540,15 +540,22 @@ class _BillScreenState extends State<BillScreen> {
                   });
                 }),
           ),
-          const SizedBox(
-            width: 15,
-          ),
+         
           Expanded(
               child: Container(
                   margin: const EdgeInsets.symmetric(vertical: 5),
-                  child: Text("price".tr() +
-                      ' : ' +
-                      (_currentSelectedItem?.amount ?? 0).toStringAsFixed(2))))
+                  child: Column(
+                    children: [
+                      Text("price".tr() +
+                          ' : ' +
+                          (_currentSelectedItem?.amount ?? 0)
+                              .toStringAsFixed(2)),
+                      Text("balance".tr() +
+                          ' : ' +
+                          (_currentSelectedItem?.itemBalance ?? 0.0).toString()
+                              ),
+                    ],
+                  )))
         ],
       );
 
@@ -657,7 +664,7 @@ class _BillScreenState extends State<BillScreen> {
         setState(() {
           _isLoading = true;
         });
-      //  PDFGeneratorHelper(response!).generateInvoicePDF();
+        //  PDFGeneratorHelper(response!).generateInvoicePDF();
       }
     } on Exception catch (_, e) {
       _showErrorDialog(e);
