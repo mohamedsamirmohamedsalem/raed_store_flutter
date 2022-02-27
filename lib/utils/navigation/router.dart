@@ -6,7 +6,9 @@ import 'package:raed_store/ReceiveMoneyScreen.dart';
 import 'package:raed_store/bill_screen.dart';
 import 'package:raed_store/constants/routes.dart';
 import 'package:raed_store/homeScreen.dart';
+import 'package:raed_store/invoicesList.dart';
 import 'package:raed_store/login_page.dart';
+import 'package:raed_store/receivedMoneyList.dart';
 import 'package:raed_store/register_page.dart';
 import 'package:raed_store/tab_bar_view.dart';
 
@@ -40,6 +42,14 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case RoutesNames.billRoute :
       return MaterialPageRoute(
         builder: (context) => BillScreen(billType: settings.arguments as BillType)
+      );
+      case RoutesNames.invoiceHistoryRoute:
+        return MaterialPageRoute(
+        builder: (context) => InvoicesHistoryScreen()
+      );
+       case RoutesNames.receiptHistoryRoute:
+        return MaterialPageRoute(
+        builder: (context) => const ReceiveMoneyHistory()
       );
     default:
       return MaterialPageRoute(

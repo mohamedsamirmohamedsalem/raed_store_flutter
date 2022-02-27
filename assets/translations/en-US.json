@@ -53,6 +53,15 @@
   "net":"Net",
   "total_items":"Total Items",
   "total_quantity" :"Total Quantity",
-  "item_already_added":"Item Already Added"
+  "item_already_added":"Item Already Added",
+  "comment":"Comment",
+  "paid":"Paid",
+  "date":"Date",
+  "client":"Client",
+  "trans_type":"Invoice Type",
+  "trans_num":"Transaction Num",
+  "invoice_history":"Invoices",
+  "amount":"Amount",
+  "receipts":"Receipts"
   
 }

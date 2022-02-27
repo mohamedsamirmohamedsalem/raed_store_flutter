@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:http/http.dart' as http;
 import 'package:raed_store/bill_screen.dart';
 import 'package:raed_store/constants/routes.dart';
+import 'package:raed_store/data/Invoice/invoice_list_response.dart';
 import 'package:raed_store/data/Invoice/invoice_response.dart';
 import 'package:raed_store/data/SaveMoneyRequest/SaveMoneyRequest.dart';
 import 'package:raed_store/data/SaveMoneyRequest/save_received_money_response.dart';
@@ -11,6 +12,7 @@ import 'package:raed_store/data/client/clientResponse.dart';
 import 'package:raed_store/data/error_model.dart';
 import 'package:raed_store/data/get_items_by_id/response.dart';
 import 'package:raed_store/data/login/login_response.dart';
+import 'package:raed_store/data/money_receive_list/recieve_money_list.dart';
 import 'package:raed_store/data/register/request.dart';
 import 'package:raed_store/data/save_invoice/request.dart';
 import 'package:raed_store/data/save_invoice/response.dart';
@@ -140,6 +142,55 @@ class NetworkManager {
     }
   }
 
+ Future<List<InoviceListResponse>?> getInvoiceList() async {
+    LoginResponse? loginResponse = await getLoginResponseFromSharedPreference();
+    var response = await http.post(Uri.parse(NetworkHelper().getInvoicesList),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer ${loginResponse!.accessToken!}"
+        });
+    print(response.body);
+    if (response.statusCode == 401) {
+      Navigation(navigationKey: Navigation.navigation_Key)
+          .navigateAndRemoveUntil(routeName: RoutesNames.homeRoute);
+      on401UnAuthorizedUser!();
+      return null;
+    } else if (response.statusCode == 200) {
+      List<dynamic> list = json.decode(response.body);
+      List<InoviceListResponse> items = [];
+      for (int i = 0; i < list.length; i++) {
+        items.add(InoviceListResponse.fromJson(list[i]));
+      }
+      return items;
+    } else {
+      throw Exception("unable to Invoice List");
+    }
+  }
+
+Future<List<ReceiveMoneyListResponse>?> getReceiptList() async {
+    LoginResponse? loginResponse = await getLoginResponseFromSharedPreference();
+    var response = await http.post(Uri.parse(NetworkHelper().getReceiptList),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer ${loginResponse!.accessToken!}"
+        });
+    print(response.body.toString());
+    if (response.statusCode == 401) {
+      Navigation(navigationKey: Navigation.navigation_Key)
+          .navigateAndRemoveUntil(routeName: RoutesNames.homeRoute);
+      on401UnAuthorizedUser!();
+      return null;
+    } else if (response.statusCode == 200) {
+      List<dynamic> list = json.decode(response.body);
+      List<ReceiveMoneyListResponse> items = [];
+      for (int i = 0; i < list.length; i++) {
+        items.add(ReceiveMoneyListResponse.fromJson(list[i]));
+      }
+      return items;
+    } else {
+      throw Exception("unable to receipt List");
+    }
+  }
   Future<SaveReceivedMoney?> saveMoney(
       SaveMoneyRequest saveMoneyRequest) async {
     LoginResponse? loginResponse = await getLoginResponseFromSharedPreference();

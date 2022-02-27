@@ -6,7 +6,6 @@ import 'package:raed_store/data/SaveMoneyRequest/SaveMoneyRequest.dart';
 import 'package:raed_store/data/SaveMoneyRequest/save_received_money_response.dart';
 import 'package:raed_store/data/client/clientResponse.dart';
 import 'package:raed_store/network/network_manager.dart';
-import 'package:raed_store/widgets/entryField.dart';
 
 class ReceiveMoneyScreen extends StatefulWidget {
   const ReceiveMoneyScreen({Key? key}) : super(key: key);

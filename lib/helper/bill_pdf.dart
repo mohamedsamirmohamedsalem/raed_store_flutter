@@ -12,7 +12,7 @@ class PDFGeneratorHelper {
 
   PDFGeneratorHelper(this._invoiceResponse);
 
-  Future<void> generatePDF() async {
+  Future<void> generateInvoicePDF(InvoiceResponse _invoiceResponse) async {
     //Create a PDF document.
     final PdfDocument document = PdfDocument();
     //Add page to the PDF

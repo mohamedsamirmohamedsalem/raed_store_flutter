@@ -170,9 +170,9 @@ class _BillScreenState extends State<BillScreen> {
           _selectedClientValue != null
               ? ElevatedButton(
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(Colors.yellow),
-                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(const EdgeInsets.all(0))
-                  ),
+                      backgroundColor: MaterialStateProperty.all(Colors.yellow),
+                      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                          const EdgeInsets.all(0))),
                   onPressed: (() => _callBalanceAPI()),
                   child: Text(
                     'show_balance'.tr(),
@@ -326,19 +326,22 @@ class _BillScreenState extends State<BillScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(
-                      width: MediaQuery.of(context).size.width-100,
+                      width: MediaQuery.of(context).size.width - 100,
                       child: SizedBox(
-                         width: MediaQuery.of(context).size.width-70,
+                        width: MediaQuery.of(context).size.width - 70,
                         child: Row(
                           children: [
                             Text(_billRecords[index].itemUnitName ?? ""),
                             const SizedBox(
                               width: 20,
                             ),
-                            SizedBox(width: 150,
+                            SizedBox(
+                              width: 150,
                               child: Text(
-                                _billRecords[index].itemName ?? "",maxLines: 2,
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                _billRecords[index].itemName ?? "",
+                                maxLines: 2,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
                               ),
                             ),
                             const Spacer(),
@@ -353,21 +356,23 @@ class _BillScreenState extends State<BillScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 10,),
                     SizedBox(
-                        width: MediaQuery.of(context).size.width-70,
+                      height: 10,
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width - 70,
                       child: Row(
                         children: [
                           Text("quantity".tr() +
                               ' : ' +
                               (_billRecords[index].qty ?? 0)
                                   .toStringAsFixed(2)),
-                                  Spacer(),
+                          Spacer(),
                           Text("price".tr() +
                               ' : ' +
                               (_billRecords[index].amount ?? 0)
                                   .toStringAsFixed(2)),
-                                  Spacer(),
+                          Spacer(),
                           Text("total".tr() +
                               ' : ' +
                               (_billRecords[index].totalItemAmount ?? 0)
@@ -400,7 +405,6 @@ class _BillScreenState extends State<BillScreen> {
           cursorColor: Colors.yellow,
           textAlign: TextAlign.center,
           decoration: InputDecoration(
-            
             labelText: "paid_amount".tr(),
             focusColor: Colors.yellow,
             focusedBorder: const OutlineInputBorder(
@@ -436,7 +440,8 @@ class _BillScreenState extends State<BillScreen> {
 
   Future<void> _onsaveBillPressed() async {
     if (_receivedMoneyController.value.text.isNotEmpty &&
-        double.parse(_receivedMoneyController.value.text) != 0) {
+        double.parse(_receivedMoneyController.value.text) >= 0 &&
+        totalAmountAfterDiscount > 0) {
       setState(() {
         _isLoading = false;
       });
@@ -448,21 +453,27 @@ class _BillScreenState extends State<BillScreen> {
                 transTypeId: widget.billType == BillType.saleBill ? 2 : 3,
                 lstTransDetailsModel: _billRecords,
                 discountValue: totalDiscount.toString(),
-                net: totalAmount.toString(),
+                net: totalAmountAfterDiscount.toString(),
                 paid: _receivedMoneyController.value.text,
                 customrtInvoiceDiscount:
                     _selectedClientValue?.customrtInvoiceDiscount ?? 0.0,
                 clientId: int.parse(_selectedClientValue?.accNumber ?? "0"),
-                totalInvoiceAmount: totalAmountAfterDiscount.toString()));
+                totalInvoiceAmount: totalAmount.toString()));
         if (saveInvoiceResponse?.satatus != "NotSaved") {
           _resetCells();
         }
+        setState(() {
+          _isLoading = true;
+        });
         _showErrorDialog(
           null,
           errorMSG: saveInvoiceResponse!.message.toString(),
           // onPostivePressed: _printInvoice,
         );
       } on Exception catch (_, e) {
+        setState(() {
+          _isLoading = true;
+        });
         _isClientBalanceReceived = true;
         _showErrorDialog(e);
       }
@@ -537,8 +548,7 @@ class _BillScreenState extends State<BillScreen> {
                   margin: const EdgeInsets.symmetric(vertical: 5),
                   child: Text("price".tr() +
                       ' : ' +
-                      (_currentSelectedItem?.amount ?? 0)
-                          .toStringAsFixed(2))))
+                      (_currentSelectedItem?.amount ?? 0).toStringAsFixed(2))))
         ],
       );
 
@@ -588,8 +598,8 @@ class _BillScreenState extends State<BillScreen> {
   }
 
   Widget _buildTotalAmountRow() => Container(
-    height: 110,
-    child: Row(
+        height: 110,
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Column(
@@ -597,9 +607,7 @@ class _BillScreenState extends State<BillScreen> {
                 Container(
                   margin: const EdgeInsets.all(10),
                   child: Text(
-                    "bill_total".tr() +
-                        ' : ' +
-                        totalAmount.toStringAsFixed(2),
+                    "bill_total".tr() + ' : ' + totalAmount.toStringAsFixed(2),
                     style: const TextStyle(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
@@ -633,7 +641,7 @@ class _BillScreenState extends State<BillScreen> {
             ),
           ],
         ),
-  );
+      );
 
   void _printInvoice() async {
     Navigator.of(context).pop();
@@ -649,7 +657,7 @@ class _BillScreenState extends State<BillScreen> {
         setState(() {
           _isLoading = true;
         });
-        PDFGeneratorHelper(response!).generatePDF();
+      //  PDFGeneratorHelper(response!).generateInvoicePDF();
       }
     } on Exception catch (_, e) {
       _showErrorDialog(e);

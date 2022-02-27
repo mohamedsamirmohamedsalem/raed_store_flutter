@@ -53,6 +53,15 @@
   "net":"الصافى",
   "total_items":"اجمالى الاصناف",
   "total_quantity" :"اجمالى القطع",
-  "item_already_added":"غير مسموح بتكرار الصنف"
+  "item_already_added":"غير مسموح بتكرار الصنف",
+  "comment":"ملاحظات",
+  "paid":"المدفوع",
+  "date":"التاريخ",
+  "client":"العميل",
+  "trans_type":"نوع الفاتورة",
+  "trans_num":"رقم الايصال",
+  "invoice_history":"الفواتير",
+  "amount":"المبلغ",
+  "receipts":"الايصالات"
 
 }

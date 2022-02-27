@@ -83,16 +83,16 @@ class HomeScreen extends StatelessWidget {
                         children: [
                           Expanded(
                             child: GestureDetector(
-                              onTap: () => {},
+                              onTap: () => _navigateToInvoiceHistory(),
                               child: _buildnavigationCard(
-                                  "الفواتير", Icons.card_giftcard),
+                                  "invoice_history".tr(), Icons.card_giftcard),
                             ),
                           ),
-                            Expanded(
+                          Expanded(
                             child: GestureDetector(
-                              onTap: () => {},
+                              onTap: () => _navigateToRecepitHistory(),
                               child: _buildnavigationCard(
-                                  "الايصالات", Icons.card_giftcard),
+                                  "receipts".tr(), Icons.card_giftcard),
                             ),
                           )
                         ],
@@ -182,5 +182,15 @@ class HomeScreen extends StatelessWidget {
               title: Text('alert'.tr()),
               content: Text('unauthorized_user'.tr()),
             ));
+  }
+
+  void _navigateToInvoiceHistory() {
+    Navigation(navigationKey: Navigation.navigation_Key)
+        .navigateTo(routeName: RoutesNames.invoiceHistoryRoute);
+  }
+
+  void _navigateToRecepitHistory() {
+     Navigation(navigationKey: Navigation.navigation_Key)
+        .navigateTo(routeName: RoutesNames.receiptHistoryRoute);
   }
 }
