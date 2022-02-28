@@ -54,14 +54,24 @@ class _BillScreenState extends State<BillScreen> {
   void initState() {
     try {
       NetworkManager().getAgents().then((value) {
-        _agentsList = value!;
+        _agentsList = value??[];
         NetworkManager().getItemWithBalance("1").then((value) {
           _itemsList = value ?? [];
           _currentSelectedItem = _itemsList[0];
           setState(() {
             _isClientBalanceReceived = true;
           });
+        }).catchError((error, stackTrace) {
+          setState(() {
+             _isClientBalanceReceived = true;
+          });
+          _showErrorDialog(null, errorMSG: error.toString());
         });
+      }).catchError((error, stackTrace) {
+          setState(() {
+             _isClientBalanceReceived = true;
+          });
+        _showErrorDialog(null, errorMSG: error.toString());
       });
     } on Exception catch (_, e) {
       setState(() {
@@ -540,7 +550,6 @@ class _BillScreenState extends State<BillScreen> {
                   });
                 }),
           ),
-         
           Expanded(
               child: Container(
                   margin: const EdgeInsets.symmetric(vertical: 5),
@@ -552,8 +561,8 @@ class _BillScreenState extends State<BillScreen> {
                               .toStringAsFixed(2)),
                       Text("balance".tr() +
                           ' : ' +
-                          (_currentSelectedItem?.itemBalance ?? 0.0).toString()
-                              ),
+                          (_currentSelectedItem?.itemBalance ?? 0.0)
+                              .toString()),
                     ],
                   )))
         ],

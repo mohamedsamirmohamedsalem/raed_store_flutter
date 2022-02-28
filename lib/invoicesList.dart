@@ -17,12 +17,15 @@ class _InvoicesHistoryScreenState extends State<InvoicesHistoryScreen> {
   @override
   void initState() {
     NetworkManager().getInvoiceList().then((value) {
-      _invoicesList = value!;
+      _invoicesList = value??[];
       setState(() {
         _isLoading = false;
       });
     }).catchError((error, stackTrace) {
-      _showErrorDialog(null, errorMSG: error);
+       setState(() {
+        _isLoading = false;
+      });
+      _showErrorDialog(null, errorMSG: error.toString());
     });
     super.initState();
   }

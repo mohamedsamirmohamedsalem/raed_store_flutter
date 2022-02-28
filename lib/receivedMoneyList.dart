@@ -17,11 +17,14 @@ class _ReceiveMoneyHistoryState extends State<ReceiveMoneyHistory> {
   @override
   void initState() {
     NetworkManager().getReceiptList().then((value) {
-      _receiveMoneyList = value!;
+      _receiveMoneyList = value ?? [];
       setState(() {
         _isLoading = false;
       });
     }).catchError((error, stackTrace) {
+      setState(() {
+        _isLoading = false;
+      });
       _showErrorDialog(null, errorMSG: error.toString());
     });
     super.initState();
