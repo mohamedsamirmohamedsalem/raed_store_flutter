@@ -6,13 +6,18 @@ import 'package:easy_localization/easy_localization.dart' as localized;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:raed_store/api/pdf_api.dart';
+import 'package:raed_store/api/pdf_invoice_api.dart';
+import 'package:raed_store/constants/routes.dart';
 import 'package:raed_store/data/Invoice/invoice_response.dart';
 import 'package:raed_store/data/client/clientResponse.dart';
 import 'package:raed_store/data/get_items_by_id/response.dart';
 import 'package:raed_store/data/save_invoice/request.dart' as invoiceRequest;
 import 'package:raed_store/data/save_invoice/response.dart';
 import 'package:raed_store/helper/bill_pdf.dart';
+import 'package:raed_store/main.dart';
 import 'package:raed_store/network/network_manager.dart';
+import 'package:raed_store/utils/navigation/navigation.dart';
 
 class BillScreen extends StatefulWidget {
   BillType? billType;
@@ -54,7 +59,7 @@ class _BillScreenState extends State<BillScreen> {
   void initState() {
     try {
       NetworkManager().getAgents().then((value) {
-        _agentsList = value??[];
+        _agentsList = value ?? [];
         NetworkManager().getItemWithBalance("1").then((value) {
           _itemsList = value ?? [];
           _currentSelectedItem = _itemsList[0];
@@ -63,14 +68,14 @@ class _BillScreenState extends State<BillScreen> {
           });
         }).catchError((error, stackTrace) {
           setState(() {
-             _isClientBalanceReceived = true;
+            _isClientBalanceReceived = true;
           });
           _showErrorDialog(null, errorMSG: error.toString());
         });
       }).catchError((error, stackTrace) {
-          setState(() {
-             _isClientBalanceReceived = true;
-          });
+        setState(() {
+          _isClientBalanceReceived = true;
+        });
         _showErrorDialog(null, errorMSG: error.toString());
       });
     } on Exception catch (_, e) {
@@ -478,7 +483,7 @@ class _BillScreenState extends State<BillScreen> {
         _showErrorDialog(
           null,
           errorMSG: saveInvoiceResponse!.message.toString(),
-          // onPostivePressed: _printInvoice,
+          onPostivePressed: _printInvoice,
         );
       } on Exception catch (_, e) {
         setState(() {
@@ -507,6 +512,7 @@ class _BillScreenState extends State<BillScreen> {
       {String errorMSG = "", Function? onPostivePressed}) {
     showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (_) => AlertDialog(
               actions: [
                 ElevatedButton(
@@ -673,9 +679,16 @@ class _BillScreenState extends State<BillScreen> {
         setState(() {
           _isLoading = true;
         });
-        //  PDFGeneratorHelper(response!).generateInvoicePDF();
+        PdfInvoiceApi.generate(response!).then((value) {
+          //PdfApi.openFile(value);
+          Navigation(navigationKey: navigatorKey)
+              .navigateTo(routeName: RoutesNames.pdfPrinterScreen, arg: value);
+        });
       }
     } on Exception catch (_, e) {
+        setState(() {
+          _isLoading = true;
+        });
       _showErrorDialog(e);
     }
   }
@@ -693,6 +706,9 @@ class _BillScreenState extends State<BillScreen> {
       _showErrorDialog(null,
           errorMSG: '${"current_balance".tr()} : $currentClientBalance');
     } on Exception catch (_, e) {
+        setState(() {
+          _isLoading = true;
+        });
       _showErrorDialog(e);
     }
   }

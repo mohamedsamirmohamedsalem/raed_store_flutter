@@ -20,6 +20,7 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
   ClientResponse? selectedClientValue;
   String? currentClientBalance = "0";
   bool _isloading = false;
+  SaveReceivedMoney? response;
 
   TextEditingController paidAmountController = TextEditingController();
 
@@ -221,21 +222,25 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
         setState(() {
           _isloading = true;
         });
-        SaveReceivedMoney? response = await NetworkManager().saveMoney(
-            SaveMoneyRequest(
-                clinetId: selectedClientValue!.accNumber!,
-                amount: paidAmountController.value.text,
-                userName: "",
-                notes: "Mobile"));
+        response = await NetworkManager().saveMoney(SaveMoneyRequest(
+            clinetId: selectedClientValue!.accNumber!,
+            amount: paidAmountController.value.text,
+            userName: "",
+            notes: "Mobile"));
         if (response?.satatus != "NotSaved") paidAmountController.clear();
         setState(() {
           _isloading = false;
         });
-        _showErrorDialog(null, errorMSG: response?.message ?? "");
+        _showErrorDialog(null,
+            errorMSG: response?.message ?? "",
+          );
       } else {
         _showErrorDialog(null, errorMSG: "please_enter_quantity".tr());
       }
     } on Exception catch (_, e) {
+        setState(() {
+          _isloading = false;
+        });
       _showErrorDialog(e);
     }
   }
@@ -279,12 +284,39 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
           }
         },
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all(Colors.yellow),
-          padding: MaterialStateProperty.all<EdgeInsetsGeometry>(const EdgeInsets.symmetric(horizontal: 2,vertical: 5))
-        ),
+            backgroundColor: MaterialStateProperty.all(Colors.yellow),
+            padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                const EdgeInsets.symmetric(horizontal: 2, vertical: 5))),
         child: const Text(
           "show_balance",
           style: TextStyle(color: Colors.black),
         ).tr());
   }
+
+  // Future<void> _navigateToPrint() {
+  //   setState(() {
+  //     _isLoading = true;
+  //   });
+  //   try {
+  //     if (response?.transId == null ||
+  //         response?.transType == null) {
+  //       throw Exception("cannot_find_transaction_number".tr());
+  //     } else {
+  //       PrintReceiveMoneyResponse? response = await NetworkManager()
+  //           .printReceiveMoney(
+  //               receiveMoneyItem.transId!, receiveMoneyItem.transType!);
+  //       setState(() {
+  //         _isLoadingAbove = false;
+  //       });
+  //       PdfInvoiceApi.generate(response!).then((value) {
+  //         //PdfApi.openFile(value);
+  //         Navigation(navigationKey: navigatorKey)
+  //             .navigateTo(routeName: RoutesNames.pdfPrinterScreen, arg: value);
+  //       });
+  //     }
+  //   } on Exception catch (_, e) {
+  //     _showErrorDialog(e);
+  //   }
+
+  // }
 }

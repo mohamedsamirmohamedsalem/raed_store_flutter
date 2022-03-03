@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:raed_store/constants/routes.dart';
 import 'package:raed_store/homeScreen.dart';
 import 'package:raed_store/invoicesList.dart';
 import 'package:raed_store/login_page.dart';
+import 'package:raed_store/pdf_print_screen.dart';
 import 'package:raed_store/receivedMoneyList.dart';
 import 'package:raed_store/register_page.dart';
 import 'package:raed_store/tab_bar_view.dart';
@@ -50,6 +52,10 @@ Route<dynamic> generateRoute(RouteSettings settings) {
        case RoutesNames.receiptHistoryRoute:
         return MaterialPageRoute(
         builder: (context) => const ReceiveMoneyHistory()
+      );
+      case RoutesNames.pdfPrinterScreen:
+      return MaterialPageRoute(
+        builder: (context) =>  PDFPrint(file:settings.arguments as File ,)
       );
     default:
       return MaterialPageRoute(

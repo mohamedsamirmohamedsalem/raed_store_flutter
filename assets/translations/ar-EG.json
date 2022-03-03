@@ -63,5 +63,14 @@
   "invoice_history":"الفواتير",
   "amount":"المبلغ",
   "receipts":"الايصالات",
-  "balance":"الرصيد"
+  "balance":"الرصيد",
+  "print":"طباعة",
+  "device":"الطابعة",
+  "refresh":"تحديث",
+  "Disconnect":"اقطع الاتصال",
+  "Connect":"اتصل",
+  "none":"غير متوفر",
+  "from_account":"من حساب",
+  "to_account":"الى حساب",
+  "amount_only":"المبلغ"
 }

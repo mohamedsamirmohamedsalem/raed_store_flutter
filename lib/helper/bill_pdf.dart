@@ -8,11 +8,11 @@ import 'package:raed_store/helper/file_saver_helper.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 class PDFGeneratorHelper {
-  final InvoiceResponse _invoiceResponse;
+  final InvoiceResponse _invoiceResponse = InvoiceResponse();
 
-  PDFGeneratorHelper(this._invoiceResponse);
+  PDFGeneratorHelper();
 
-  Future<void> generateInvoicePDF(InvoiceResponse _invoiceResponse) async {
+  Future<void> generateInvoicePDF() async {
     //Create a PDF document.
     final PdfDocument document = PdfDocument();
     //Add page to the PDF
@@ -26,7 +26,7 @@ class PDFGeneratorHelper {
     //Generate PDF grid.
     final PdfGrid grid = _getGrid();
     //Draw the header section by creating text element
-    final PdfLayoutResult result =await _drawHeader(page, pageSize, grid);
+    final PdfLayoutResult result = await _drawHeader(page, pageSize, grid);
     //Draw grid
     _drawGrid(page, grid, result);
     //Add invoice footer
@@ -39,25 +39,26 @@ class PDFGeneratorHelper {
   }
 
   //Draws the invoice header
- Future< PdfLayoutResult> _drawHeader(PdfPage page, Size pageSize, PdfGrid grid) async{
+  Future<PdfLayoutResult> _drawHeader(
+      PdfPage page, Size pageSize, PdfGrid grid) async {
+    var font = await _getFont();
     //Draw rectangle
     page.graphics.drawRectangle(
         brush: PdfSolidBrush(PdfColor(91, 126, 215, 255)),
         bounds: Rect.fromLTWH(0, 0, pageSize.width - 115, 90));
     //Draw string
-    page.graphics.drawString(
-        'invoice'.tr(),await _getFont(),
+    page.graphics.drawString('invoice'.tr(), font,
         brush: PdfBrushes.white,
         bounds: Rect.fromLTWH(25, 0, pageSize.width - 115, 90),
         format: _stringFormat());
     page.graphics.drawRectangle(
         bounds: Rect.fromLTWH(400, 0, pageSize.width - 400, 90),
         brush: PdfSolidBrush(PdfColor(65, 104, 205)));
-    page.graphics.drawString(_invoiceResponse.totalInvoiceAmount.toString(),
-      await _getFont(),
+    page.graphics.drawString(
+        _invoiceResponse.totalInvoiceAmount.toString(), font,
         bounds: Rect.fromLTWH(400, 0, pageSize.width - 400, 100),
         brush: PdfBrushes.white,
-         format: _stringFormat());
+        format: _stringFormat());
     final PdfFont contentFont = await _getFont();
     //Draw string
     page.graphics.drawString("price".tr(), contentFont,
@@ -72,7 +73,7 @@ class PDFGeneratorHelper {
         '${'client_name'.tr()}: \r${_invoiceResponse.clinetName}, \r\n\r\n${'invoice_type'.tr()} :\r ${_invoiceResponse.transTypeName} \r\n\r\n${'account_balance_before'.tr()} : ${_invoiceResponse.accountBalanceBefore}\r\n\r\n${'account_balance_after'.tr()} : ${_invoiceResponse.accountBalanceAfter}';
     PdfTextElement(text: invoiceNumber, font: contentFont).draw(
         page: page,
-      //  format:PdfLayoutFormat(layoutType: PdfLayoutType.onePage,p),
+        //  format:PdfLayoutFormat(layoutType: PdfLayoutType.onePage,p),
         bounds: Rect.fromLTWH(pageSize.width - (contentSize.width + 30), 120,
             contentSize.width + 30, pageSize.height - 120));
     return PdfTextElement(text: contentData, font: contentFont).draw(
@@ -81,10 +82,12 @@ class PDFGeneratorHelper {
             pageSize.width - (contentSize.width + 30), pageSize.height - 120))!;
   }
 
-Future<  PdfTrueTypeFont> _getFont() async => PdfTrueTypeFont(await _readFontData(),14);
+  Future<PdfTrueTypeFont> _getFont() async =>
+      PdfTrueTypeFont(await _readFontData(), 14);
 
   //Draws the grid
-  Future<void> _drawGrid(PdfPage page, PdfGrid grid, PdfLayoutResult result) async {
+  Future<void> _drawGrid(
+      PdfPage page, PdfGrid grid, PdfLayoutResult result) async {
     Rect? totalPriceCellBounds;
     Rect? quantityCellBounds;
     //Invoke the beginCellLayout event.
@@ -100,34 +103,31 @@ Future<  PdfTrueTypeFont> _getFont() async => PdfTrueTypeFont(await _readFontDat
     result = grid.draw(
         page: page, bounds: Rect.fromLTWH(0, result.bounds.bottom + 40, 0, 0))!;
     //Draw grand total.
-    page.graphics.drawString("price".tr(),
-    await   _getFont(),
+    var font = await _getFont();
+    page.graphics.drawString("price".tr(), font,
         format: _stringFormat(),
         bounds: Rect.fromLTWH(
             quantityCellBounds!.left,
             result.bounds.bottom + 10,
             quantityCellBounds!.width,
             quantityCellBounds!.height));
-    page.graphics.drawString(_invoiceResponse.net.toString(),
-     await _getFont(),
-         format: _stringFormat(),
+    page.graphics.drawString(_invoiceResponse.net.toString(), font,
+        format: _stringFormat(),
         bounds: Rect.fromLTWH(
             totalPriceCellBounds!.left,
             result.bounds.bottom + 10,
             totalPriceCellBounds!.width,
             totalPriceCellBounds!.height));
     // Draw discount
-    page.graphics.drawString("discount".tr(),
-     await  _getFont(),
-         format: _stringFormat(),
+    page.graphics.drawString("discount".tr(), font,
+        format: _stringFormat(),
         bounds: Rect.fromLTWH(
             quantityCellBounds!.left,
             result.bounds.bottom + 30,
             quantityCellBounds!.width,
             quantityCellBounds!.height));
-    page.graphics.drawString(_invoiceResponse.discountValue.toString(),
-    await _getFont(),
-         format: _stringFormat(),
+    page.graphics.drawString(_invoiceResponse.discountValue.toString(), font,
+        format: _stringFormat(),
         bounds: Rect.fromLTWH(
             totalPriceCellBounds!.left,
             result.bounds.bottom + 30,
@@ -135,16 +135,15 @@ Future<  PdfTrueTypeFont> _getFont() async => PdfTrueTypeFont(await _readFontDat
             totalPriceCellBounds!.height));
 
     // Draw discount
-    page.graphics.drawString("total".tr(),
-     await _getFont(),
+    page.graphics.drawString("total".tr(), font,
         bounds: Rect.fromLTWH(
             quantityCellBounds!.left,
             result.bounds.bottom + 50,
             quantityCellBounds!.width,
             quantityCellBounds!.height));
-    page.graphics.drawString(_invoiceResponse.totalInvoiceAmount.toString(),
-    await  _getFont(),
-         format: _stringFormat(),
+    page.graphics.drawString(
+        _invoiceResponse.totalInvoiceAmount.toString(), font,
+        format: _stringFormat(),
         bounds: Rect.fromLTWH(
             totalPriceCellBounds!.left,
             result.bounds.bottom + 50,
@@ -153,7 +152,8 @@ Future<  PdfTrueTypeFont> _getFont() async => PdfTrueTypeFont(await _readFontDat
   }
 
   //Draw the invoice footer data.
-  Future<void> _drawFooter(PdfPage page, Size pageSize) async{
+  Future<void> _drawFooter(PdfPage page, Size pageSize) async {
+    var font = await _getFont();
     final PdfPen linePen =
         PdfPen(PdfColor(142, 170, 219, 255), dashStyle: PdfDashStyle.custom);
     linePen.dashPattern = <double>[3, 3];
@@ -163,9 +163,8 @@ Future<  PdfTrueTypeFont> _getFont() async => PdfTrueTypeFont(await _readFontDat
     String footerContent =
         '${_invoiceResponse.representativeName}\r\n\r\n${_invoiceResponse.driverName}\r\n\r\n${_invoiceResponse.companyName}\r\n\r\n${'phone'.tr()}: ${_invoiceResponse.phone1}\r\n\r\n${'provider_phone'.tr()}: ${_invoiceResponse.providerPhone}';
     //Added 30 as a margin for the layout
-    page.graphics.drawString(
-        footerContent,await _getFont(),
-         format: _stringFormat(),
+    page.graphics.drawString(footerContent, font,
+        format: _stringFormat(),
         bounds: Rect.fromLTWH(pageSize.width - 30, pageSize.height - 70, 0, 0));
   }
 
@@ -229,11 +228,15 @@ Future<  PdfTrueTypeFont> _getFont() async => PdfTrueTypeFont(await _readFontDat
     row.cells[5].value = element.totalItemAmount ?? "";
   }
 
- PdfStringFormat _stringFormat() {
-   return  PdfStringFormat(textDirection: PdfTextDirection.rightToLeft,alignment: PdfTextAlignment.right,paragraphIndent: 35);
- }
-  Future<List<int>> _readFontData() async { 
-    final ByteData bytes = await rootBundle.load('assets/fonts/arial.ttf'); 
-    return bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes); 
-  } 
+  PdfStringFormat _stringFormat() {
+    return PdfStringFormat(
+        textDirection: PdfTextDirection.rightToLeft,
+        alignment: PdfTextAlignment.right,
+        paragraphIndent: 35);
+  }
+
+  Future<List<int>> _readFontData() async {
+    final ByteData bytes = await rootBundle.load('assets/fonts/arial.ttf');
+    return bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes);
+  }
 }

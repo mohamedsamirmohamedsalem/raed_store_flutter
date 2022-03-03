@@ -1,7 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:raed_store/api/pdf_invoice_api.dart';
+import 'package:raed_store/constants/routes.dart';
 import 'package:raed_store/data/money_receive_list/recieve_money_list.dart';
+import 'package:raed_store/data/print_receive_money/print_receive_money_response.dart';
+import 'package:raed_store/main.dart';
 import 'package:raed_store/network/network_manager.dart';
+import 'package:raed_store/utils/navigation/navigation.dart';
 
 class ReceiveMoneyHistory extends StatefulWidget {
   const ReceiveMoneyHistory({Key? key}) : super(key: key);
@@ -13,7 +18,7 @@ class ReceiveMoneyHistory extends StatefulWidget {
 class _ReceiveMoneyHistoryState extends State<ReceiveMoneyHistory> {
   List<ReceiveMoneyListResponse> _receiveMoneyList = [];
   bool _isLoading = true;
-
+  bool _isLoadingAbove = false;
   @override
   void initState() {
     NetworkManager().getReceiptList().then((value) {
@@ -41,15 +46,21 @@ class _ReceiveMoneyHistoryState extends State<ReceiveMoneyHistory> {
           style: const TextStyle(color: Colors.black),
         ),
       ),
-      body: _isLoading
-          ? _buildProgressIndicator()
-          : Container(
-              margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-              child: ListView.builder(
-                itemCount: _receiveMoneyList.length,
-                itemBuilder: (context, index) => _buildRowItem(index),
-              ),
-            ),
+      body: Stack(
+        children: [
+          _isLoading
+              ? _buildProgressIndicator()
+              : Container(
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  child: ListView.builder(
+                    itemCount: _receiveMoneyList.length,
+                    itemBuilder: (context, index) => _buildRowItem(index),
+                  ),
+                ),
+          _isLoadingAbove ? _buildProgressIndicator() : Container(),
+        ],
+      ),
     );
   }
 
@@ -64,7 +75,7 @@ class _ReceiveMoneyHistoryState extends State<ReceiveMoneyHistory> {
           child: ListTile(
             contentPadding: EdgeInsets.zero,
             trailing: IconButton(
-                onPressed: () {},
+                onPressed: () => _printReceiveMoney(_receiveMoneyList[index]),
                 icon: const Icon(
                   Icons.print,
                   color: Colors.yellow,
@@ -184,4 +195,31 @@ class _ReceiveMoneyHistoryState extends State<ReceiveMoneyHistory> {
   Widget _buildSplit() => const SizedBox(
         height: 1,
       );
+
+  Future<void> _printReceiveMoney(
+      ReceiveMoneyListResponse receiveMoneyItem) async {
+    setState(() {
+      _isLoadingAbove = true;
+    });
+    try {
+      if (receiveMoneyItem.transId == null ||
+          receiveMoneyItem.transType == null) {
+        throw Exception("cannot_find_transaction_number".tr());
+      } else {
+        PrintReceiveMoneyResponse? response = await NetworkManager()
+            .printReceiveMoney(
+                receiveMoneyItem.transId!, receiveMoneyItem.transType!);
+        setState(() {
+          _isLoadingAbove = false;
+        });
+        PdfInvoiceApi.generate(response!).then((value) {
+          //PdfApi.openFile(value);
+          Navigation(navigationKey: navigatorKey)
+              .navigateTo(routeName: RoutesNames.pdfPrinterScreen, arg: value);
+        });
+      }
+    } on Exception catch (_, e) {
+      _showErrorDialog(e);
+    }
+  }
 }

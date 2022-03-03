@@ -1,8 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:raed_store/api/pdf_invoice_api.dart';
+import 'package:raed_store/constants/routes.dart';
 import 'package:raed_store/data/Invoice/invoice_list_response.dart';
+import 'package:raed_store/data/Invoice/invoice_response.dart';
 import 'package:raed_store/helper/bill_pdf.dart';
+import 'package:raed_store/main.dart';
 import 'package:raed_store/network/network_manager.dart';
+import 'package:raed_store/utils/navigation/navigation.dart';
 
 class InvoicesHistoryScreen extends StatefulWidget {
   InvoicesHistoryScreen({Key? key}) : super(key: key);
@@ -14,15 +19,16 @@ class InvoicesHistoryScreen extends StatefulWidget {
 class _InvoicesHistoryScreenState extends State<InvoicesHistoryScreen> {
   List<InoviceListResponse> _invoicesList = [];
   bool _isLoading = true;
+  bool _isLoadingAbove = false;
   @override
   void initState() {
     NetworkManager().getInvoiceList().then((value) {
-      _invoicesList = value??[];
+      _invoicesList = value ?? [];
       setState(() {
         _isLoading = false;
       });
     }).catchError((error, stackTrace) {
-       setState(() {
+      setState(() {
         _isLoading = false;
       });
       _showErrorDialog(null, errorMSG: error.toString());
@@ -41,15 +47,21 @@ class _InvoicesHistoryScreenState extends State<InvoicesHistoryScreen> {
           style: const TextStyle(color: Colors.black),
         ),
       ),
-      body: _isLoading
-          ? _buildProgressIndicator()
-          : Container(
-              margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-              child: ListView.builder(
-                itemCount: _invoicesList.length,
-                itemBuilder: (context, index) => _buildRowItem(index),
-              ),
-            ),
+      body: Stack(
+        children: [
+          _isLoading
+              ? _buildProgressIndicator()
+              : Container(
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  child: ListView.builder(
+                    itemCount: _invoicesList.length,
+                    itemBuilder: (context, index) => _buildRowItem(index),
+                  ),
+                ),
+          _isLoadingAbove ? _buildProgressIndicator() : Container()
+        ],
+      ),
     );
   }
 
@@ -64,7 +76,7 @@ class _InvoicesHistoryScreenState extends State<InvoicesHistoryScreen> {
           child: ListTile(
             contentPadding: EdgeInsets.zero,
             trailing: IconButton(
-                onPressed: () {},
+                onPressed: () => _callPrintAPI(_invoicesList[index].transId),
                 icon: const Icon(
                   Icons.print,
                   color: Colors.yellow,
@@ -201,4 +213,28 @@ class _InvoicesHistoryScreenState extends State<InvoicesHistoryScreen> {
   Widget _buildSplit() => const SizedBox(
         height: 1,
       );
+
+  Future<void> _callPrintAPI(String? transId) async {
+    setState(() {
+      _isLoadingAbove = true;
+    });
+    try {
+      if (transId == null) {
+        throw Exception("cannot_find_transaction_number".tr());
+      } else {
+        InvoiceResponse? response =
+            await NetworkManager().printInvoice(transId);
+        setState(() {
+          _isLoadingAbove = false;
+        });
+        PdfInvoiceApi.generate(response!).then((value) {
+          //PdfApi.openFile(value);
+          Navigation(navigationKey: navigatorKey)
+              .navigateTo(routeName: RoutesNames.pdfPrinterScreen, arg: value);
+        });
+      }
+    } on Exception catch (_, e) {
+      _showErrorDialog(e);
+    }
+  }
 }

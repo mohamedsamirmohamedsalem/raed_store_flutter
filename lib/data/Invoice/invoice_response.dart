@@ -1,4 +1,6 @@
-class InvoiceResponse {
+import 'package:raed_store/data/base/base_print_doc.dart';
+
+class InvoiceResponse implements BasePrintDoc {
   String? transId;
   int? clientId;
   int? transTypeId;

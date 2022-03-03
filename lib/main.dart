@@ -12,8 +12,9 @@ void main() async {
   runApp(EasyLocalization(
       supportedLocales: const [Locale('en', 'US'), Locale('ar', 'EG')],
       path: 'assets/translations',
+      startLocale: const Locale('ar', 'EG') ,
       // <-- change the path of the translation files
-      fallbackLocale: const Locale('en', 'US'),
+      fallbackLocale: const Locale('ar', 'EG'),
       child: const MyApp()));
 }
 
@@ -29,8 +30,8 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       localizationsDelegates: context.localizationDelegates,
-      supportedLocales: context.supportedLocales,
-      locale: context.locale,
+      supportedLocales: const [Locale('en', 'US'), Locale('ar', 'EG')],
+        locale: const  Locale('ar', 'EG'),
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       title: "Raed Store",

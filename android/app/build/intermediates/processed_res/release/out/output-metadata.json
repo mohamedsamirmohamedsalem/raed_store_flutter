@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "artifactType": {
+    "type": "PROCESSED_RES",
+    "kind": "Directory"
+  },
+  "applicationId": "com.example.raed_store_flutter",
+  "variantName": "processReleaseResources",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "versionCode": 20215,
+      "versionName": "2.5.11",
+      "outputFile": "resources-release.ap_"
+    }
+  ]
+}

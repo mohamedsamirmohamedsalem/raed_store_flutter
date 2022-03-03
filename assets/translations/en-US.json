@@ -63,6 +63,15 @@
   "invoice_history":"Invoices",
   "amount":"Amount",
   "receipts":"Receipts",
-  "balance":"balance"
+  "balance":"balance",
+  "print":"Print",
+  "device":"Device",
+  "refresh":"Refresh",
+  "Disconnect":"Disconnect",
+  "Connect":"Connect",
+  "none":"None",
+  "from_account":"From Account",
+  "to_account":"To Account",
+  "amount_only":"Amount only"
   
 }

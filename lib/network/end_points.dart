@@ -11,4 +11,5 @@ class NetworkHelper {
   String printInvoice = baseUrl + "Invoice/PrintInvoice";
   String getInvoicesList = baseUrl + "Invoice/GetListInvoices";
   String getReceiptList = baseUrl + "AccountData/GetListReceiveMoney";
+  String printReceiveMoney = baseUrl + "AccountData/PrintReceiveMoney";
 }
