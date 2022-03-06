@@ -228,9 +228,9 @@ class _InvoicesHistoryScreenState extends State<InvoicesHistoryScreen> {
           _isLoadingAbove = false;
         });
         PdfInvoiceApi.generate(response!).then((value) {
-          //PdfApi.openFile(value);
-          Navigation(navigationKey: navigatorKey)
-              .navigateTo(routeName: RoutesNames.pdfPrinterScreen, arg: value);
+          // //PdfApi.openFile(value);
+          // Navigation(navigationKey: navigatorKey)
+          //     .navigateTo(routeName: RoutesNames.pdfPrinterScreen, arg: value);
         });
       }
     } on Exception catch (_, e) {

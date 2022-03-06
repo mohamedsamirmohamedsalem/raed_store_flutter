@@ -10,5 +10,4 @@ abstract class RoutesNames {
   static const String invoiceHistoryRoute = "invoice_history_route";
   static const String receiptHistoryRoute = "receipt_history_route";
   static const String pdfViewerScreen = "pdf_viewer";
-  static const String pdfPrinterScreen = "pdf_printer_viewer";
 }

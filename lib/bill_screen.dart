@@ -680,9 +680,9 @@ class _BillScreenState extends State<BillScreen> {
           _isLoading = true;
         });
         PdfInvoiceApi.generate(response!).then((value) {
-          //PdfApi.openFile(value);
-          Navigation(navigationKey: navigatorKey)
-              .navigateTo(routeName: RoutesNames.pdfPrinterScreen, arg: value);
+          // //PdfApi.openFile(value);
+          // Navigation(navigationKey: navigatorKey)
+          //     .navigateTo(routeName: RoutesNames.pdfPrinterScreen, arg: value);
         });
       }
     } on Exception catch (_, e) {

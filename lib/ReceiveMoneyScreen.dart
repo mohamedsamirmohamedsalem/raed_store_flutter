@@ -313,9 +313,9 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
           _isloading = false;
         });
         PdfInvoiceApi.generate(response!).then((value) {
-          //PdfApi.openFile(value);
-          Navigation(navigationKey: navigatorKey)
-              .navigateTo(routeName: RoutesNames.pdfPrinterScreen, arg: value);
+          // //PdfApi.openFile(value);
+          // Navigation(navigationKey: navigatorKey)
+          //     .navigateTo(routeName: RoutesNames.pdfPrinterScreen, arg: value);
         });
       }
     } on Exception catch (_, e) {
