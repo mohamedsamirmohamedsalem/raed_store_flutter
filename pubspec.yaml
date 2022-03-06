@@ -26,6 +26,7 @@ dependencies:
   open_file: ^3.2.1
   google_fonts: ^2.3.1
   native_pdf_view: ^6.0.0+1
+  native_pdf_renderer: ^5.0.0+1
 
 
 

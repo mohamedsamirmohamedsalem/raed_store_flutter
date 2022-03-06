@@ -1,11 +1,10 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:native_pdf_view/native_pdf_view.dart';
-
 
 class PDFPrint extends StatefulWidget {
   PDFPrint({Key? key, this.file}) : super(key: key);
@@ -21,7 +20,7 @@ class _PDFPrintState extends State<PDFPrint> {
   BluetoothDevice? _device;
   bool _connected = false;
   String? pathImage;
-late PdfController _pdfController ;
+  late PdfController _pdfController;
 
   @override
   void initState() {
@@ -29,12 +28,9 @@ late PdfController _pdfController ;
     initPlatformState();
     // initSavetoPath();
     _pdfController = PdfController(
-  document: PdfDocument.openFile(widget.file!.path),
-);
+      document: PdfDocument.openFile(widget.file!.path),
+    );
   }
-
-  
-  
 
   Future<void> initPlatformState() async {
     bool? isConnected = await bluetooth.isConnected;
@@ -117,9 +113,12 @@ late PdfController _pdfController ;
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          centerTitle: true,
+        centerTitle: true,
         backgroundColor: Colors.yellow,
-        title: Text('print'.tr(),style: TextStyle(color: Colors.black),),
+        title: Text(
+          'print'.tr(),
+          style: TextStyle(color: Colors.black),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -132,8 +131,8 @@ late PdfController _pdfController ;
                 const SizedBox(
                   width: 10,
                 ),
-                 Text(
-                  'device'.tr()+' : ',
+                Text(
+                  'device'.tr() + ' : ',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
@@ -163,7 +162,7 @@ late PdfController _pdfController ;
                   onPressed: () {
                     initPlatformState();
                   },
-                  child:  Text(
+                  child: Text(
                     "refresh".tr(),
                     style: const TextStyle(color: Colors.black),
                   ),
@@ -183,24 +182,36 @@ late PdfController _pdfController ;
               ],
             ),
             Padding(
-              padding:
-                  const EdgeInsets.only(left: 10.0, right: 10.0, top: 50),
+              padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 50),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(primary: Colors.yellow),
                 onPressed: () async {
-                  var pdf = await widget.file!.readAsBytes();
-                  bluetooth.printImageBytes(pdf);
+                  final document =
+                      await PdfDocument.openFile(widget.file!.path);
+                  final page = await document.getPage(1);
+                  final pageImage =
+                      await page.render(width: page.width, height: page.height);
+
+                  bluetooth.printImageBytes(pageImage?.bytes ?? Uint8List(0));
                 },
                 child:
-                     Text('print'.tr(), style: TextStyle(color: Colors.black)),
+                    Text('print'.tr(), style: TextStyle(color: Colors.black)),
               ),
             ),
-            const SizedBox(height: 10,),
-            Container(decoration:BoxDecoration(
-                borderRadius: BorderRadius.circular(15.0),
-                border: Border.all(
-                    color: Colors.yellow, style: BorderStyle.solid, width: 2.0),
-              ),height: 500,width: MediaQuery.of(context).size.width,child: pdfView()),
+            const SizedBox(
+              height: 10,
+            ),
+            Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15.0),
+                  border: Border.all(
+                      color: Colors.yellow,
+                      style: BorderStyle.solid,
+                      width: 2.0),
+                ),
+                height: 500,
+                width: MediaQuery.of(context).size.width,
+                child: pdfView()),
           ],
         ),
       ),
@@ -208,13 +219,13 @@ late PdfController _pdfController ;
   }
 
   Widget pdfView() => PdfView(
-  controller: _pdfController,
-);
+        controller: _pdfController,
+      );
 
   List<DropdownMenuItem<BluetoothDevice>> _getDeviceItems() {
     List<DropdownMenuItem<BluetoothDevice>> items = [];
     if (_devices.isEmpty) {
-      items.add( DropdownMenuItem(
+      items.add(DropdownMenuItem(
         child: Text('none'.tr()),
       ));
     } else {
@@ -247,8 +258,6 @@ late PdfController _pdfController ;
     bluetooth.disconnect();
     setState(() => _connected = false);
   }
-
-
 
   Future show(
     String message, {

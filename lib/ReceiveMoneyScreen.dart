@@ -2,10 +2,15 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:raed_store/api/pdf_invoice_api.dart';
+import 'package:raed_store/constants/routes.dart';
 import 'package:raed_store/data/SaveMoneyRequest/SaveMoneyRequest.dart';
 import 'package:raed_store/data/SaveMoneyRequest/save_received_money_response.dart';
 import 'package:raed_store/data/client/clientResponse.dart';
+import 'package:raed_store/data/print_receive_money/print_receive_money_response.dart';
+import 'package:raed_store/main.dart';
 import 'package:raed_store/network/network_manager.dart';
+import 'package:raed_store/utils/navigation/navigation.dart';
 
 class ReceiveMoneyScreen extends StatefulWidget {
   const ReceiveMoneyScreen({Key? key}) : super(key: key);
@@ -20,7 +25,7 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
   ClientResponse? selectedClientValue;
   String? currentClientBalance = "0";
   bool _isloading = false;
-  SaveReceivedMoney? response;
+  SaveReceivedMoney? _saveMoneyResponse;
 
   TextEditingController paidAmountController = TextEditingController();
 
@@ -222,17 +227,17 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
         setState(() {
           _isloading = true;
         });
-        response = await NetworkManager().saveMoney(SaveMoneyRequest(
+        _saveMoneyResponse = await NetworkManager().saveMoney(SaveMoneyRequest(
             clinetId: selectedClientValue!.accNumber!,
             amount: paidAmountController.value.text,
             userName: "",
             notes: "Mobile"));
-        if (response?.satatus != "NotSaved") paidAmountController.clear();
+        if (_saveMoneyResponse?.satatus != "NotSaved") paidAmountController.clear();
         setState(() {
           _isloading = false;
         });
         _showErrorDialog(null,
-            errorMSG: response?.message ?? "",
+            errorMSG: _saveMoneyResponse?.message ?? "",onPostivePressed: _navigateToPrint
           );
       } else {
         _showErrorDialog(null, errorMSG: "please_enter_quantity".tr());
@@ -293,30 +298,29 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
         ).tr());
   }
 
-  // Future<void> _navigateToPrint() {
-  //   setState(() {
-  //     _isLoading = true;
-  //   });
-  //   try {
-  //     if (response?.transId == null ||
-  //         response?.transType == null) {
-  //       throw Exception("cannot_find_transaction_number".tr());
-  //     } else {
-  //       PrintReceiveMoneyResponse? response = await NetworkManager()
-  //           .printReceiveMoney(
-  //               receiveMoneyItem.transId!, receiveMoneyItem.transType!);
-  //       setState(() {
-  //         _isLoadingAbove = false;
-  //       });
-  //       PdfInvoiceApi.generate(response!).then((value) {
-  //         //PdfApi.openFile(value);
-  //         Navigation(navigationKey: navigatorKey)
-  //             .navigateTo(routeName: RoutesNames.pdfPrinterScreen, arg: value);
-  //       });
-  //     }
-  //   } on Exception catch (_, e) {
-  //     _showErrorDialog(e);
-  //   }
+  Future<void> _navigateToPrint() async {
+    setState(() {
+      _isloading = true;
+    });
+    try {
+      if (_saveMoneyResponse?.transId == null) {
+        throw Exception("cannot_find_transaction_number".tr());
+      } else {
+        PrintReceiveMoneyResponse? response = await NetworkManager()
+            .printReceiveMoney(
+                _saveMoneyResponse!.transId!,null);
+        setState(() {
+          _isloading = false;
+        });
+        PdfInvoiceApi.generate(response!).then((value) {
+          //PdfApi.openFile(value);
+          Navigation(navigationKey: navigatorKey)
+              .navigateTo(routeName: RoutesNames.pdfPrinterScreen, arg: value);
+        });
+      }
+    } on Exception catch (_, e) {
+      _showErrorDialog(e);
+    }
 
-  // }
+  }
 }

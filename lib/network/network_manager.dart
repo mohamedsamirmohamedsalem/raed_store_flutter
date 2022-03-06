@@ -263,10 +263,10 @@ class NetworkManager {
   }
 
   Future<PrintReceiveMoneyResponse?> printReceiveMoney(
-      String trasID, String transTrpeName) async {
+      String trasID, String? transTrpeName) async {
     LoginResponse? loginResponse = await getLoginResponseFromSharedPreference();
     var response = await http.post(Uri.parse(NetworkHelper().printReceiveMoney),
-        body: '{"TransId":"$trasID" , "TransTrpeName":"$transTrpeName"}',
+        body:transTrpeName==null?'{"TransId":"$trasID" }': '{"TransId":"$trasID" , "TransTrpeName":"$transTrpeName"}',
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer ${loginResponse!.accessToken}"
